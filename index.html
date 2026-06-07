@@ -227,7 +227,35 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
 .end-badge.end-escalate{color:#fcd34d;background:rgba(245,184,65,.14);border:1px solid rgba(245,184,65,.4);}
 .end-badge.end-info{color:#7dd3fc;background:rgba(14,165,233,.14);border:1px solid rgba(14,165,233,.4);}
 
+/* ===== ASYSTENT (chat) ===== */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:440px;max-width:760px;margin:8px auto 0;}
+.chat-log{flex:1;overflow-y:auto;padding:6px 4px 14px;display:flex;flex-direction:column;gap:14px;}
+.chat-log::-webkit-scrollbar{width:9px;}
+.chat-log::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px;}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:10px;animation:fade .2s ease;}
+.msg.user{align-self:flex-end;align-items:flex-end;}
+.msg.bot{align-self:flex-start;align-items:flex-start;}
+.bubble{padding:12px 15px;border-radius:15px;font-size:14.5px;line-height:1.55;}
+.msg.user .bubble{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border-bottom-right-radius:5px;font-weight:600;}
+.msg.bot .bubble{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-bottom-left-radius:5px;}
+.msg.bot .bubble code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--accent);}
+.bot-row{display:flex;gap:10px;align-items:flex-start;}
+.bot-av{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);font-size:17px;}
+.msg .opts{display:flex;flex-direction:column;gap:8px;width:100%;}
+.msg .opts.match .opt-btn{--c:var(--accent);}
+.msg .node{max-width:none;padding:15px 16px;border-radius:13px;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--txt2);border-radius:20px;padding:7px 13px;font-size:13px;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;transition:.15s;}
+.chip:hover{border-color:var(--accent);color:var(--txt);}
+.chat-input-row{display:flex;gap:9px;padding:12px 0 4px;border-top:1px solid var(--line);}
+.chat-input-row input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--txt);font-family:'Sora',sans-serif;font-size:14px;outline:none;}
+.chat-input-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.12);}
+.chat-send{flex:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border:none;border-radius:12px;padding:0 20px;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:.15s;}
+.chat-send:hover{filter:brightness(1.08);}
+.chat-meta{font-size:11.5px;color:var(--txt3);text-align:center;margin-top:7px;}
+.match-lead{font-size:12px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:2px;}
 </style>
+
 </head>
 <body>
 <div class="wrap">
@@ -253,6 +281,7 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
     <button class="tab active" data-tab="classroom">📚 Classroom <span class="tnum">11</span></button>
     <button class="tab" data-tab="command">⌨️ Command <span class="tnum">89</span></button>
     <button class="tab" data-tab="scenarios">🧭 Scenarios <span class="tnum">60</span></button>
+    <button class="tab" data-tab="assist">🤖 Asystent <span class="tnum">live</span></button>
   </nav>
 
   <div id="tab-classroom" class="tabpane active">
@@ -297,6 +326,17 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
     <div id="scenWalk" style="display:none"></div>
   </div>
 
+
+  <div id="tab-assist" class="tabpane">
+    <div class="chat-wrap">
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="Opisz problem, np. „nie mogę się zalogować" albo „drukarka nie drukuje"…" autocomplete="off">
+        <button class="chat-send" id="chatSend">Wyślij</button>
+      </div>
+      <div class="chat-meta">Asystent lokalny — dopasowuje opis do bazy 60 scenariuszy i prowadzi diagnozę. Działa offline, bez wysyłania danych.</div>
+    </div>
+  </div>
 
   <footer>Materiał poglądowy do nauki i powtórek · stan terminologii: 2026 · zweryfikuj szczegóły w dokumentacji producenta przed użyciem na produkcji.</footer>
 </div>
@@ -1089,6 +1129,141 @@ function renderScenList(){
   });
 }
 document.getElementById('scenSearch').addEventListener('input',e=>{scenQ=e.target.value.trim().toLowerCase();renderScenList();});
+
+/* ============ ASYSTENT (lokalny troubleshooting) ============ */
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ł/g,'l');
+const ASSIST_STOP=new Set(['nie','sie','jest','jak','mam','moj','moja','moje','przy','dla','the','and','czy','oraz','lub','ale','tak','tez','tylko','bardzo','problem','cos','mnie','nam','jakis','jakas','wcale','znowu','ciagle','dzis','teraz']);
+const tokens=q=>norm(q).split(/[^a-z0-9]+/).filter(t=>t.length>2&&!ASSIST_STOP.has(t));
+const SCEN_KW=[
+ ['zalogowac','account'],['zalogowanie','account'],['logowanie','account'],['konto zablokowane','account'],['zablokowane konto','account'],['reset hasla','account'],['zapomnialem hasla','account'],['nie pamietam hasla','account'],['haslo','account'],['zablokowany','account'],['lockout','account'],
+ ['zmiana hasla','pwchange'],['zmienic haslo','pwchange'],['nowe haslo','pwchange'],['wymagania hasla','pwchange'],
+ ['konto wylaczone','disabled'],['wylaczone konto','disabled'],['zablokowane przez administratora','disabled'],
+ ['mfa','mfa'],['authenticator','mfa'],['dwuetapowe','mfa'],['dwuskladnikowe','mfa'],['weryfikacja dwuetapowa','mfa'],['nowy telefon','mfa'],['kod weryfikacyjny','mfa'],['push','mfa'],
+ ['nowy pracownik','onboard'],['onboarding','onboard'],['utworzyc konto','onboard'],['zalozyc konto','onboard'],['nowe konto','onboard'],
+ ['odejscie','offboard'],['zwolnienie','offboard'],['offboarding','offboard'],['pracownik odchodzi','offboard'],['wylaczyc konto','offboard'],
+ ['folder wspoldzielony','share'],['udzial sieciowy','share'],['brak dostepu do folderu','share'],['uprawnienia do folderu','share'],['odmowa dostepu','share'],
+ ['prosba o dostep','accessreq'],['nadac dostep','accessreq'],['dostep do aplikacji','accessreq'],['dostep do systemu','accessreq'],['uprawnienia','accessreq'],
+ ['microsoft 365','m365login'],['office 365','m365login'],['zalogowac do office','m365login'],['logowanie do microsoft','m365login'],
+ ['outlook nie wysyla','outsend'],['nie wysyla maili','outsend'],['skrzynka nadawcza','outsend'],['nie moge wyslac maila','outsend'],['mail nie wychodzi','outsend'],
+ ['nie odbiera poczty','outrecv'],['nie przychodza maile','outrecv'],['brak nowych wiadomosci','outrecv'],['nie dostaje maili','outrecv'],
+ ['outlook sie nie uruchamia','outstart'],['outlook nie startuje','outstart'],['zestaw folderow','outstart'],['outlook nie dziala','outstart'],
+ ['skrzynka pelna','mboxfull'],['przekroczono limit','mboxfull'],['brak miejsca w skrzynce','mboxfull'],
+ ['skrzynka wspoldzielona','sharedmbox'],['wspolna skrzynka','sharedmbox'],
+ ['trafia do spamu','maildeliver'],['mail nie dociera','maildeliver'],['wiadomosc nie dochodzi','maildeliver'],['dostarczalnosc','maildeliver'],['spam','maildeliver'],
+ ['kalendarz','calendar'],['udostepnianie kalendarza','calendar'],
+ ['poza biurem','autoreply'],['autoresponder','autoreply'],['automatyczna odpowiedz','autoreply'],
+ ['podpis','signature'],['stopka','signature'],
+ ['teams nie dziala','teams'],['teams sie nie uruchamia','teams'],['teams nie loguje','teams'],['teams blad','teams'],
+ ['mikrofon','teamsaudio'],['nie slychac','teamsaudio'],['brak dzwieku na spotkaniu','teamsaudio'],['nie slysze na spotkaniu','teamsaudio'],
+ ['kamera','camera'],['kamerka','camera'],['brak obrazu z kamery','camera'],
+ ['onedrive','onedrive'],['synchronizacja','onedrive'],['nie synchronizuje','onedrive'],
+ ['sharepoint','sharepoint'],['witryna','sharepoint'],['biblioteka dokumentow','sharepoint'],
+ ['udostepnic plik','sharefile'],['udostepniony plik','sharefile'],['link do pliku','sharefile'],
+ ['plik zablokowany','filelock'],['ktos edytuje','filelock'],
+ ['aplikacja sie zawiesza','appcrash'],['program sie zawiesza','appcrash'],['wywala sie','appcrash'],['zamyka sie','appcrash'],['crash','appcrash'],['przestaje odpowiadac','appcrash'],
+ ['instalacja','install'],['zainstalowac','install'],['nie moge zainstalowac','install'],['instalator','install'],
+ ['aktualizacja windows','winupdate'],['windows update','winupdate'],['update windows','winupdate'],
+ ['licencja','officelic'],['office bez licencji','officelic'],['aktywacja office','officelic'],['produkt bez licencji','officelic'],
+ ['certyfikat','browser'],['strona sie nie laduje','browser'],['blad certyfikatu','browser'],['przegladarka','browser'],['polaczenie nie jest prywatne','browser'],
+ ['odinstalowac','uninstall'],['usunac program','uninstall'],['dezinstalacja','uninstall'],
+ ['nie wlacza sie','nopower'],['nie wlacza','nopower'],['martwy','nopower'],['nie ma zasilania','nopower'],['nie startuje komputer','nopower'],
+ ['brak obrazu','nodisplay'],['czarny ekran','nodisplay'],['monitor nie dziala','nodisplay'],['no signal','nodisplay'],
+ ['bateria','battery'],['laptop sie nie laduje','battery'],['ladowanie','battery'],['podlaczony nie laduje','battery'],
+ ['niebieski ekran','bsod'],['bsod','bsod'],['blue screen','bsod'],['ekran smierci','bsod'],['blad krytyczny','bsod'],
+ ['przegrzewa','overheat'],['goracy','overheat'],['wentylator','overheat'],['glosny wentylator','overheat'],['wysoka temperatura','overheat'],
+ ['stacja dokujaca','dock'],['dokowanie','dock'],['monitory przez stacje','dock'],
+ ['klawiatura','inputdev'],['mysz','inputdev'],['myszka','inputdev'],
+ ['pendrive','usb'],['dysk usb','usb'],['nie wykrywa urzadzenia','usb'],['urzadzenie usb','usb'],
+ ['dzwiek','sound'],['brak dzwieku','sound'],['sluchawki','sound'],['glosnik','sound'],
+ ['bluetooth','bluetooth'],['nie paruje','bluetooth'],['parowanie','bluetooth'],
+ ['dysk pelny','diskfull'],['brak miejsca','diskfull'],['dysk c pelny','diskfull'],['malo miejsca','diskfull'],
+ ['wifi','wifi'],['wi-fi','wifi'],['nie laczy z wifi','wifi'],['siec bezprzewodowa','wifi'],
+ ['brak internetu','net'],['nie ma internetu','net'],['nie ma neta','net'],['internet nie dziala','net'],
+ ['wolny internet','slownet'],['powolny internet','slownet'],['slabe lacze','slownet'],['mula internet','slownet'],
+ ['vpn','vpn'],['nie laczy vpn','vpn'],['rozlacza vpn','vpn'],['tunel','vpn'],
+ ['dysk sieciowy','mapdrive'],['zmapowany dysk','mapdrive'],['dysk zniknal','mapdrive'],['czerwony x','mapdrive'],
+ ['poczta na telefonie','mobilemail'],['telefon nie odbiera poczty','mobilemail'],['mail na telefonie','mobilemail'],
+ ['rejestracja w intune','mdmenroll'],['intune','mdmenroll'],['mdm','mdmenroll'],['company portal','mdmenroll'],
+ ['activation lock','activationlock'],['iphone','activationlock'],['apple id','activationlock'],['blokada aktywacji','activationlock'],
+ ['non-compliant','noncompliant'],['niezgodne','noncompliant'],['niezgodnosc','noncompliant'],['compliance','noncompliant'],
+ ['aplikacja na telefonie','mobileapp'],['aplikacja firmowa','mobileapp'],['vpp','mobileapp'],
+ ['phishing','phishing'],['podejrzany email','phishing'],['podejrzany mail','phishing'],['podejrzana wiadomosc','phishing'],['oszustwo','phishing'],
+ ['malware','malware'],['wirus','malware'],['zlosliwe','malware'],['zaszyfrowane pliki','malware'],['ransomware','malware'],['okup','malware'],['infekcja','malware'],
+ ['zgubiony','loststolen'],['skradziony','loststolen'],['kradziez','loststolen'],['zgubilem laptop','loststolen'],['zgubilem telefon','loststolen'],['utrata sprzetu','loststolen'],
+ ['przejete konto','compromised'],['wlamanie','compromised'],['podejrzana aktywnosc','compromised'],['konto przejete','compromised'],['wlamano sie','compromised'],
+ ['wolno','slowpc'],['wolny komputer','slowpc'],['muli','slowpc'],['dziala wolno','slowpc'],['spowolnienie','slowpc'],['zawiesza','slowpc'],
+ ['drukarka','printer'],['drukowanie','printer'],['nie drukuje','printer'],['wydruk','printer'],
+ ['autopilot','autopilot'],['konfiguracja nowego komputera','autopilot'],['wdrozenie','autopilot'],
+ ['aplikacja nie dziala','appdown'],['system firmowy','appdown'],['usluga nie dziala','appdown'],['intranet','appdown']
+];
+function matchScenarios(q){
+  const nq=norm(q), toks=tokens(q), score={};
+  const add=(id,v)=>{score[id]=(score[id]||0)+v;};
+  SCEN_KW.forEach(([kw,id])=>{const nk=norm(kw); if(nq.includes(nk)) add(id, nk.includes(' ')?5:3);});
+  SCENARIOS.forEach(s=>{const t=norm(s.title), hay=norm(s.title+' '+s.desc+' '+s.cat);
+    toks.forEach(tok=>{ if(t.includes(tok)) add(s.id,2); else if(hay.includes(tok)) add(s.id,1); });});
+  return Object.entries(score).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([id])=>SCENARIOS.find(s=>s.id===id)).filter(Boolean);
+}
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const chatLogEl=()=>document.getElementById('chatLog');
+function scrollChat(){const l=chatLogEl();if(l)l.scrollTop=l.scrollHeight;}
+function addUser(t){const m=document.createElement('div');m.className='msg user';m.innerHTML=`<div class="bubble">${esc(t)}</div>`;chatLogEl().appendChild(m);scrollChat();}
+function addBot(html,after){const m=document.createElement('div');m.className='msg bot';
+  m.innerHTML=`<div class="bot-row"><div class="bot-av">🤖</div><div class="bot-content" style="flex:1;display:flex;flex-direction:column;gap:10px;">${html}</div></div>`;
+  chatLogEl().appendChild(m);const c=m.querySelector('.bot-content');if(after)after(c);scrollChat();}
+function wireCopies(c){c.querySelectorAll('.copy-btn[data-cmd]').forEach(btn=>btn.onclick=()=>{const cmd=decodeURIComponent(btn.dataset.cmd);
+  navigator.clipboard?.writeText(cmd).then(()=>{btn.textContent='✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent='⧉';btn.classList.remove('ok');},1200);}).catch(()=>{});});}
+let aScen=null,aNode=null,aHist=[];
+function handleQuery(text){text=(text||'').trim();if(!text)return;addUser(text);aScen=null;
+  const matches=matchScenarios(text);
+  if(!matches.length){noMatch();return;}
+  showMatches(matches.slice(0,3));}
+function showMatches(list){
+  let h=`<div class="bubble"><div class="match-lead">Dopasowane scenariusze (${list[0].cat})</div>Wybierz, a przeprowadzę Cię przez diagnozę krok po kroku:</div>`;
+  h+=`<div class="opts match">`+list.map(s=>`<button class="opt-btn" data-id="${s.id}">${esc(s.title)}</button>`).join('')+`</div>`;
+  addBot(h,c=>c.querySelectorAll('.opt-btn[data-id]').forEach(b=>b.onclick=()=>startWalk(b.dataset.id)));}
+function noMatch(){
+  let h=`<div class="bubble">Nie jestem pewien, czego dotyczy problem. Doprecyzuj kilkoma słowami albo wybierz obszar:</div>`;
+  h+=`<div class="chips">`+scenCats().map(c=>`<button class="chip" data-cat="${esc(c)}">${esc(c)}</button>`).join('')+`</div>`;
+  addBot(h,c=>c.querySelectorAll('.chip[data-cat]').forEach(b=>b.onclick=()=>{addUser(b.dataset.cat);listCategory(b.dataset.cat);}));}
+function listCategory(cat){const list=SCENARIOS.filter(s=>s.cat===cat);
+  let h=`<div class="bubble">Scenariusze w obszarze <b>${esc(cat)}</b>:</div><div class="opts match">`+list.map(s=>`<button class="opt-btn" data-id="${s.id}">${esc(s.title)}</button>`).join('')+`</div>`;
+  addBot(h,c=>c.querySelectorAll('.opt-btn[data-id]').forEach(b=>b.onclick=()=>startWalk(b.dataset.id)));}
+function startWalk(id){const s=SCENARIOS.find(x=>x.id===id);if(!s)return;aScen=s;aNode=s.start;aHist=[s.start];addUser('▶ '+s.title);renderChatNode();}
+function renderChatNode(){
+  document.querySelectorAll('#chatLog .opt-btn').forEach(b=>{b.disabled=true;b.style.opacity='.45';b.style.pointerEvents='none';});
+  const s=aScen,n=s.nodes[aNode];
+  let h=`<div class="node node-${n.type}${n.kind?' end-'+n.kind:''}" style="--c:${s.c}">`;
+  if(n.title)h+=`<div class="node-title">${n.title}</div>`;
+  if(n.text)h+=`<div class="node-text">${n.text}</div>`;
+  if(n.list)h+=`<ul class="node-list">`+n.list.map(x=>`<li>${x}</li>`).join('')+`</ul>`;
+  if(n.cmds)h+=`<div class="cmds">`+n.cmds.map(c=>`<div class="cmd"><code>${c[0].replace(/</g,'&lt;')}</code><button class="copy-btn" data-cmd="${encodeURIComponent(c[0])}" title="Kopiuj">⧉</button></div>`).join('')+`</div>`;
+  if(n.type==='end'){const lbl={resolved:'✓ Rozwiązane',escalate:'⚠ Eskaluj',info:'ℹ Wskazówka'}[n.kind];h+=`<div class="end-badge end-${n.kind}">${lbl}</div>`;}
+  h+=`</div>`;
+  if(n.type==='decision')h+=`<div class="opts">`+n.options.map(o=>`<button class="opt-btn" data-to="${o.to}">${esc(o.label)}</button>`).join('')+`</div>`;
+  else if(n.type==='step')h+=`<div class="opts"><button class="opt-btn primary" data-to="${n.next}">Dalej ›</button></div>`;
+  const ctrls=[];
+  if(aHist.length>1)ctrls.push(`<button class="opt-btn" data-act="back">↩ Krok wstecz</button>`);
+  if(n.type==='end'){ctrls.push(`<button class="opt-btn primary" data-act="restart">↺ Od nowa</button>`);ctrls.push(`<button class="opt-btn" data-act="new">🔍 Inny problem</button>`);}
+  if(ctrls.length)h+=`<div class="opts">`+ctrls.join('')+`</div>`;
+  addBot(h,content=>{
+    content.querySelectorAll('.opt-btn[data-to]').forEach(b=>b.onclick=()=>{addUser(b.textContent.trim());aNode=b.dataset.to;aHist.push(aNode);renderChatNode();});
+    const back=content.querySelector('[data-act="back"]');if(back)back.onclick=()=>{if(aHist.length>1){aHist.pop();aNode=aHist[aHist.length-1];addUser('↩ krok wstecz');renderChatNode();}};
+    const rs=content.querySelector('[data-act="restart"]');if(rs)rs.onclick=()=>{aNode=s.start;aHist=[s.start];addUser('↺ od nowa');renderChatNode();};
+    const np=content.querySelector('[data-act="new"]');if(np)np.onclick=()=>{aScen=null;addBot('<div class="bubble">Jasne — opisz kolejny problem albo wybierz obszar.</div>');document.getElementById('chatInput').focus();};
+    wireCopies(content);
+  });
+}
+function sendChat(){const i=document.getElementById('chatInput');const t=i.value;if(!t.trim())return;i.value='';handleQuery(t);}
+let assistReady=false;
+function initAssist(){if(assistReady)return;assistReady=true;
+  document.getElementById('chatSend').onclick=sendChat;
+  document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendChat();}});
+  const ex=['Nie mogę się zalogować','Drukarka nie drukuje','Brak internetu','VPN nie łączy','Outlook nie wysyła','Komputer działa wolno','Podejrzany e-mail'];
+  let h=`<div class="bubble">Cześć! Jestem lokalnym asystentem IT. Opisz problem swoimi słowami, a dopasuję go do scenariusza i przeprowadzę Cię przez diagnozę krok po kroku. Możesz też zacząć od częstego zgłoszenia:</div>`;
+  h+=`<div class="chips">`+ex.map(t=>`<button class="chip" data-q="${esc(t)}">${esc(t)}</button>`).join('')+`</div>`;
+  addBot(h,c=>c.querySelectorAll('.chip[data-q]').forEach(b=>b.onclick=()=>handleQuery(b.dataset.q)));
+}
 function openScen(id){curScen=SCENARIOS.find(s=>s.id===id);curNode=curScen.start;scenHist=[curNode];renderWalker();}
 function closeScen(){renderScenList();window.scrollTo({top:0,behavior:'smooth'});}
 function renderWalker(){
@@ -1115,7 +1290,7 @@ function renderWalker(){
 }
 
 /* ============ INIT ============ */
-buildCmdPills();renderCmd();renderScenList();
+buildCmdPills();renderCmd();renderScenList();initAssist();
 
 </script>
 </body>
