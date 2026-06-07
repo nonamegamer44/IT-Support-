@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Support — Dashboard edukacyjny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1018; --bg2:#11161f; --panel:#161c27; --panel2:#1c2330;
+  --line:#27303f; --line2:#323c4d;
+  --txt:#e6eaf2; --txt2:#9aa6b8; --txt3:#69748a;
+  --accent:#2dd4bf; --accent2:#0ea5e9; --amber:#f5b841; --rose:#fb7185;
+  --net:#0ea5e9; --win:#3b82f6; --ad:#8b5cf6; --m365:#2dd4bf; --intune:#22c55e;
+  --apple:#a78bfa; --sec:#fb7185; --help:#f5b841; --trbl:#fb923c; --cisco:#38bdf8; --hw:#f97316;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Archivo',-apple-system,sans-serif;
+  background:
+    radial-gradient(900px 500px at 88% -8%, rgba(45,212,191,.10), transparent 60%),
+    radial-gradient(800px 480px at 5% 0%, rgba(14,165,233,.10), transparent 55%),
+    var(--bg);
+  color:var(--txt);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  padding:0 0 60px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px;}
+
+/* HEADER */
+header{padding:30px 0 16px;}
+.brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.logo{
+  width:46px;height:46px;border-radius:12px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:grid;place-items:center;font-family:'JetBrains Mono',monospace;
+  font-weight:600;color:#06121a;font-size:19px;box-shadow:0 6px 22px rgba(45,212,191,.25);
+}
+h1{font-family:'Sora',sans-serif;font-weight:800;font-size:26px;letter-spacing:-.02em;line-height:1;}
+.sub{color:var(--txt2);font-size:13px;margin-top:5px;}
+.brand-txt{flex:1;min-width:220px;}
+
+/* PROGRESS RING */
+.ring-wrap{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:11px 16px;}
+.ring{position:relative;width:50px;height:50px;flex:none;}
+.ring svg{transform:rotate(-90deg);}
+.ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px;}
+.ring-meta .n{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;}
+.ring-meta .l{color:var(--txt3);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+
+/* CONTROLS */
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:20px 0 14px;position:sticky;top:0;z-index:30;
+  padding:12px 0;background:linear-gradient(var(--bg),var(--bg) 78%,transparent);}
+.search{flex:1;min-width:200px;position:relative;}
+.search input{
+  width:100%;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  border-radius:11px;padding:11px 14px 11px 38px;font-family:'Archivo';font-size:14px;outline:none;transition:.15s;
+}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,212,191,.12);}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3);}
+.btn{
+  background:var(--panel);border:1px solid var(--line);color:var(--txt2);
+  border-radius:11px;padding:11px 16px;font-family:'Sora';font-weight:600;font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap;
+}
+.btn:hover{border-color:var(--line2);color:var(--txt);}
+.btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border-color:transparent;}
+
+/* FILTER PILLS */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+.pill{
+  background:var(--panel);border:1px solid var(--line);color:var(--txt2);
+  border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:7px;font-family:'Archivo';
+}
+.pill .d{width:8px;height:8px;border-radius:50%;}
+.pill:hover{border-color:var(--line2);color:var(--txt);}
+.pill.on{background:var(--panel2);border-color:var(--line2);color:var(--txt);}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--bg2));
+  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.18s;
+  display:flex;flex-direction:column;
+}
+.card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,0,0,.35);}
+.card.done{opacity:.62;}
+.card-head{padding:16px 16px 13px;cursor:pointer;position:relative;}
+.card-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);}
+.ch-top{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.ci{width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);}
+.ci svg{color:var(--c);}
+.ct{flex:1;}
+.ct h3{font-family:'Sora';font-weight:700;font-size:16px;letter-spacing:-.01em;}
+.ct .cat{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}
+.card-desc{color:var(--txt2);font-size:13px;line-height:1.5;}
+.ch-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+.tags{display:flex;gap:5px;flex-wrap:wrap;}
+.tg{font-family:'JetBrains Mono';font-size:10.5px;color:var(--txt2);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 7px;}
+.chev{color:var(--txt3);transition:.2s;}
+.card.open .chev{transform:rotate(180deg);}
+
+/* BODY (expandable) */
+.card-body{max-height:0;overflow:hidden;transition:max-height .35s ease;border-top:0 solid var(--line);}
+.card.open .card-body{max-height:2600px;border-top:1px solid var(--line);}
+.cb-inner{padding:15px 16px 16px;}
+.block{margin-bottom:15px;}
+.block:last-child{margin-bottom:0;}
+.block h4{font-family:'Sora';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--c);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.block ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.block li{font-size:13px;line-height:1.5;color:var(--txt);padding-left:16px;position:relative;}
+.block li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--c);opacity:.7;}
+.block li b{color:var(--txt);font-weight:700;}
+.block li code,.term{font-family:'JetBrains Mono';font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--accent);}
+.cmds{display:flex;flex-direction:column;gap:5px;}
+.cmd{font-family:'JetBrains Mono';font-size:12px;background:#0a0e15;border:1px solid var(--line);border-radius:7px;padding:8px 10px;color:#a5f3e8;display:flex;justify-content:space-between;gap:10px;align-items:center;}
+.cmd span{color:var(--txt3);font-family:'Archivo';font-size:11px;flex:none;}
+.done-btn{
+  width:100%;margin-top:4px;background:var(--panel2);border:1px solid var(--line);color:var(--txt2);
+  border-radius:9px;padding:9px;font-family:'Sora';font-weight:600;font-size:12.5px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.done-btn:hover{border-color:var(--line2);color:var(--txt);}
+.card.done .done-btn{background:color-mix(in srgb,var(--intune) 16%,transparent);border-color:color-mix(in srgb,var(--intune) 40%,transparent);color:#86efac;}
+
+/* FLASHCARDS */
+.overlay{position:fixed;inset:0;background:rgba(6,9,14,.82);backdrop-filter:blur(6px);z-index:100;display:none;place-items:center;padding:22px;}
+.overlay.show{display:grid;}
+.fc{width:100%;max-width:560px;}
+.fc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.fc-top .t{font-family:'Sora';font-weight:700;font-size:17px;}
+.fc-close{background:var(--panel);border:1px solid var(--line);color:var(--txt2);width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:18px;}
+.flash{
+  background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:18px;
+  min-height:260px;padding:30px 28px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;position:relative;
+}
+.flash .qtag{position:absolute;top:16px;left:20px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);font-weight:700;}
+.flash .q{font-family:'Sora';font-weight:700;font-size:21px;line-height:1.3;text-align:center;}
+.flash .a{font-size:15px;line-height:1.55;color:var(--txt);margin-top:16px;text-align:center;display:none;}
+.flash.flipped .a{display:block;}
+.flash .hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:11px;color:var(--txt3);}
+.fc-nav{display:flex;gap:10px;margin-top:14px;}
+.fc-nav button{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:12px;font-family:'Sora';font-weight:600;cursor:pointer;transition:.15s;}
+.fc-nav button:hover{border-color:var(--accent);}
+.fc-count{text-align:center;color:var(--txt3);font-size:12px;margin-top:10px;font-family:'JetBrains Mono';}
+
+.empty{text-align:center;padding:60px 20px;color:var(--txt3);}
+footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
+@media(max-width:640px){.grid{grid-template-columns:1fr;}h1{font-size:22px;}}
+/* ===== TABS ===== */
+.tabnav{display:flex;gap:4px;margin:6px 0 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.tab{background:none;border:none;color:var(--txt2);font-family:'Sora',sans-serif;font-weight:600;font-size:14px;padding:11px 18px;cursor:pointer;position:relative;display:flex;align-items:center;gap:8px;border-radius:10px 10px 0 0;transition:.15s;}
+.tab:hover{color:var(--txt);background:rgba(255,255,255,.02);}
+.tab.active{color:var(--txt);}
+.tab.active::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.tab .tnum{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt3);background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:1px 7px;}
+.tabpane{display:none;animation:fade .25s ease;}
+.tabpane.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* ===== COMMAND ===== */
+.cmd-list{display:flex;flex-direction:column;gap:10px;}
+.cmd-grouphead{font-family:'Sora',sans-serif;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--c);margin:18px 0 4px;display:flex;align-items:center;gap:8px;}
+.cmd-grouphead:first-child{margin-top:0;}
+.cmd-grouphead .gline{flex:1;height:1px;background:var(--line);}
+.cmd-entry{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-left:4px solid var(--c);border-radius:11px;padding:12px 14px;transition:.15s;}
+.cmd-entry:hover{border-color:var(--line2);border-left-color:var(--c);}
+.cmd-top{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;}
+.cmd-code{font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#a5f3e8;font-weight:600;word-break:break-word;line-height:1.4;flex:1;}
+.cmd-badge{font-family:'JetBrains Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;flex:none;color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);}
+.copy-btn{flex:none;background:var(--panel2);border:1px solid var(--line);color:var(--txt2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px;transition:.15s;}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+.copy-btn.ok{color:var(--intune);border-color:var(--intune);}
+.cmd-d{color:var(--txt2);font-size:13px;margin-top:7px;line-height:1.45;}
+.cmd-ex{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--txt3);margin-top:7px;background:#0a0e15;border:1px solid var(--line);border-radius:7px;padding:7px 10px;line-height:1.4;}
+.cmd-ex b{color:var(--txt2);font-family:'Archivo',sans-serif;font-weight:600;}
+
+/* ===== SCENARIOS ===== */
+.scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.scen-card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px;cursor:pointer;transition:.18s;position:relative;overflow:hidden;}
+.scen-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);}
+.scen-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,0,0,.35);}
+.scen-card .sc-top{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.scen-card .ci{width:38px;height:38px;border-radius:10px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);}
+.scen-card .ci svg{color:var(--c);}
+.scen-card h3{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;}
+.scen-card .cat{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}
+.scen-card .sc-desc{color:var(--txt2);font-size:13px;line-height:1.5;}
+.scen-card .sc-go{margin-top:12px;font-family:'Sora',sans-serif;font-weight:600;font-size:12.5px;color:var(--c);display:flex;align-items:center;gap:6px;}
+
+/* WALKER */
+.walk-top{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.walk-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.walk-head .ci{width:44px;height:44px;border-radius:11px;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);}
+.walk-head .ci svg{color:var(--c);}
+.walk-head h3{font-family:'Sora',sans-serif;font-weight:800;font-size:21px;letter-spacing:-.01em;}
+.walk-head .cat{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;}
+.crumbs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:18px;font-size:11.5px;}
+.crumb{color:var(--txt3);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-family:'Archivo',sans-serif;}
+.crumb.on{color:var(--txt);border-color:var(--line2);background:var(--panel2);}
+.crsep{color:var(--txt3);}
+.node{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-left:5px solid var(--c);border-radius:16px;padding:22px 22px 20px;max-width:680px;}
+.node-title{font-family:'Sora',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px;}
+.node-text{color:var(--txt);font-size:14.5px;line-height:1.55;}
+.node-text code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--accent);}
+.node-list{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+.node-list li{font-size:14px;line-height:1.5;color:var(--txt);padding-left:20px;position:relative;}
+.node-list li::before{content:"";position:absolute;left:3px;top:8px;width:6px;height:6px;border-radius:50%;background:var(--c);}
+.node .cmds{margin-top:13px;display:flex;flex-direction:column;gap:6px;}
+.node .cmd{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#0a0e15;border:1px solid var(--line);border-radius:8px;padding:9px 11px;color:#a5f3e8;display:flex;justify-content:space-between;gap:10px;align-items:center;}
+.node .cmd span{color:var(--txt3);font-family:'Archivo',sans-serif;font-size:11.5px;flex:none;}
+.opts{display:flex;flex-direction:column;gap:9px;margin-top:18px;}
+.opt-btn{text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:13px 16px;font-family:'Sora',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:10px;}
+.opt-btn::before{content:"→";color:var(--c);font-weight:700;}
+.opt-btn:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--panel2));transform:translateX(3px);}
+.opt-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border-color:transparent;justify-content:center;}
+.opt-btn.primary::before{content:"";}
+.end-badge{display:inline-flex;align-items:center;gap:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:13px;padding:6px 14px;border-radius:20px;margin-top:4px;}
+.node.end-resolved{border-left-color:#22c55e;}
+.node.end-escalate{border-left-color:#f5b841;}
+.node.end-info{border-left-color:#0ea5e9;}
+.end-badge.end-resolved{color:#86efac;background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.4);}
+.end-badge.end-escalate{color:#fcd34d;background:rgba(245,184,65,.14);border:1px solid rgba(245,184,65,.4);}
+.end-badge.end-info{color:#7dd3fc;background:rgba(14,165,233,.14);border:1px solid rgba(14,165,233,.4);}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">IT</div>
+      <div class="brand-txt">
+        <h1>IT Support — centrum wiedzy</h1>
+        <div class="sub">Classroom · Command · Scenarios — narzędzie do nauki i pracy</div>
+      </div>
+      <div class="ring-wrap" id="ringWrap">
+        <div class="ring">
+          <svg width="50" height="50"><circle cx="25" cy="25" r="21" fill="none" stroke="#27303f" stroke-width="6"/><circle id="ringFill" cx="25" cy="25" r="21" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-dasharray="131.9" stroke-dashoffset="131.9"/><defs><linearGradient id="g"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs></svg>
+          <div class="pct" id="ringPct">0%</div>
+        </div>
+        <div class="ring-meta"><div class="n" id="doneN">0/0</div><div class="l">opanowane</div></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabnav">
+    <button class="tab active" data-tab="classroom">📚 Classroom <span class="tnum">11</span></button>
+    <button class="tab" data-tab="command">⌨️ Command <span class="tnum">89</span></button>
+    <button class="tab" data-tab="scenarios">🧭 Scenarios <span class="tnum">4</span></button>
+  </nav>
+
+  <div id="tab-classroom" class="tabpane active">
+  <div class="controls">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Szukaj zagadnienia, komendy, terminu…">
+    </div>
+    <button class="btn" id="flashBtn">🃏 Tryb fiszek</button>
+    <button class="btn" id="resetBtn">Reset postępu</button>
+  </div>
+
+  <div class="pills" id="pills"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">Nic nie znaleziono. Wyczyść wyszukiwanie.</div>
+  </div>
+
+  <div id="tab-command" class="tabpane">
+    <div class="controls">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="cmdSearch" type="text" placeholder="Szukaj komendy lub zastosowania… (np. dns, reset, vlan)">
+      </div>
+    </div>
+    <div class="pills" id="cmdPills"></div>
+    <div class="cmd-list" id="cmdList"></div>
+    <div class="empty" id="cmdEmpty" style="display:none">Brak wyników. Wyczyść wyszukiwanie.</div>
+  </div>
+
+  <div id="tab-scenarios" class="tabpane">
+    <div id="scenList" class="scen-grid"></div>
+    <div id="scenWalk" style="display:none"></div>
+  </div>
+
+
+  <footer>Materiał poglądowy do nauki i powtórek · stan terminologii: 2026 · zweryfikuj szczegóły w dokumentacji producenta przed użyciem na produkcji.</footer>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="overlay" id="overlay">
+  <div class="fc">
+    <div class="fc-top"><div class="t">🃏 Fiszki — powtórka</div><button class="fc-close" id="fcClose">×</button></div>
+    <div class="flash" id="flash"><div class="qtag" id="fcTag"></div><div class="q" id="fcQ"></div><div class="a" id="fcA"></div><div class="hint">kliknij, by odwrócić</div></div>
+    <div class="fc-nav"><button id="fcPrev">‹ Wstecz</button><button id="fcShuffle">Tasuj</button><button id="fcNext">Dalej ›</button></div>
+    <div class="fc-count" id="fcCount"></div>
+  </div>
+</div>
+
+<script>
+const ICON=(p)=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS={
+  net:ICON('<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>'),
+  win:ICON('<rect x="3" y="4" width="18" height="14" rx="1"/><path d="M3 9h18M8 18v3M16 18v3M6 21h12"/>'),
+  ad:ICON('<path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M20 21v-1a3 3 0 0 0-2-2.8M4 21v-1a3 3 0 0 1 2-2.8"/>'),
+  m365:ICON('<path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>'),
+  intune:ICON('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>'),
+  apple:ICON('<path d="M12 20.94c1.5 0 2.75-1.06 4-1.06 1.25 0 2.5 1.06 4 1.06M12 4.06C10.5 4.06 9.25 3 8 3 6.75 3 5.5 4.06 4 4.06"/><path d="M12 4.5v16"/>'),
+  sec:ICON('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'),
+  help:ICON('<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>'),
+  trbl:ICON('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6a2 2 0 0 0 2.8 2.8l6-6a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.8-2.8z"/>'),
+  hw:ICON('<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M2 20h20M8 16v4M16 16v4"/>'),
+  cisco:ICON('<path d="M4 14v-4M8 18V6M12 16V8M16 18V6M20 14v-4"/>'),
+};
+
+const DATA=[
+ {id:'net',cat:'Sieci',c:'var(--net)',icon:'net',title:'Sieci komputerowe',
+  desc:'Model TCP/IP i OSI, adresacja IP, podsieci, DNS/DHCP/NAT, urządzenia sieciowe — fundament każdego zgłoszenia sieciowego.',
+  tags:['TCP/IP','OSI','subnetting','DNS','DHCP'],
+  blocks:[
+   {h:'Modele warstwowe',type:'ul',items:[
+     '<b>TCP/IP (4 warstwy)</b>: dostępu do sieci → internetowa → transportowa → aplikacji.',
+     '<b>OSI (7 warstw)</b>: 1 fizyczna, 2 łącza danych (MAC, switch), 3 sieciowa (IP, router), 4 transportowa (TCP/UDP, porty), 5 sesji, 6 prezentacji, 7 aplikacji. Używaj OSI do nazywania, na której warstwie leży problem.',
+     '<b>Enkapsulacja</b>: dane → segment (L4) → pakiet (L3) → ramka (L2) → bity (L1).',
+     '<b>MAC vs IP</b>: MAC to stały adres karty (L2, w LAN), IP to adres logiczny (L3, marszrutowalny). ARP łączy IP z MAC.']},
+   {h:'Adresacja i podsieci',type:'ul',items:[
+     '<b>Maska / CIDR</b> dzieli adres na część sieci i hosta. <span class="term">/24</span>=255.255.255.0 (254 hosty), <span class="term">/25</span>=126 hostów.',
+     '<b>IP prywatne (RFC 1918)</b>: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 — niemarszrutowalne w internecie, ukryte za NAT.',
+     '<b>Adres sieci</b> (pierwszy) i <b>broadcast</b> (ostatni) nie są przypisywane hostom.',
+     '<b>Brama domyślna</b> = droga poza lokalną podsieć (zwykle .1).',
+     '<b>APIPA</b> <span class="term">169.254.x.x</span> = host nie dostał IP z DHCP (objaw problemu).',
+     '<b>DHCP (proces DORA)</b>: Discover → Offer → Request → Acknowledge. Dzierżawa (lease) ma czas wygaśnięcia.',
+     '<b>NAT/PAT</b> mapuje wiele adresów prywatnych na jeden publiczny (po numerach portów).']},
+   {h:'DNS w praktyce',type:'ul',items:[
+     '<b>Rekordy</b>: A (IPv4), AAAA (IPv6), CNAME (alias), MX (poczta), PTR (reverse), TXT/SPF/DKIM/DMARC (poczta, weryfikacja), NS (serwery nazw).',
+     '<b>Kolejność rozwiązywania</b>: cache → plik hosts → serwer DNS.',
+     '<b>Plik hosts</b>: <span class="term">C:\\Windows\\System32\\drivers\\etc\\hosts</span> — ręczne nadpisanie (uwaga: częste źródło dziwnych problemów).',
+     '<b>TTL</b> rekordu decyduje jak długo jest w cache — po zmianie DNS poczekaj na propagację.']},
+   {h:'Urządzenia sieciowe',type:'ul',items:[
+     '<b>Switch (L2)</b> — przełącza ramki w LAN po adresach MAC; tworzy VLAN-y.',
+     '<b>Router (L3)</b> — łączy różne sieci, marszruteje po IP, robi NAT.',
+     '<b>Firewall</b> — filtruje ruch wg reguł (porty, adresy, aplikacje).',
+     '<b>Access Point</b> — sieć bezprzewodowa (Wi-Fi).',
+     '<b>Proxy</b> — pośredniczy w ruchu (filtrowanie, cache); zła konfiguracja blokuje stron.']},
+   {h:'Komendy diagnostyczne',type:'cmd',items:[
+     ['ipconfig /all','pełna konfiguracja kart + DNS/DHCP'],
+     ['ipconfig /flushdns','wyczyszczenie cache DNS'],
+     ['ipconfig /release && ipconfig /renew','odnowienie dzierżawy DHCP'],
+     ['ping -t 8.8.8.8','ciągły test łączności'],
+     ['nslookup example.com 8.8.8.8','test DNS na wskazanym serwerze'],
+     ['tracert example.com','trasa + gdzie urywa się łączność'],
+     ['Test-NetConnection host -Port 443','test konkretnego portu (PS)'],
+     ['arp -a','tablica MAC↔IP'],
+     ['netstat -ano','aktywne połączenia + PID'],
+     ['netsh int ip reset && netsh winsock reset','reset stosu sieciowego (po restarcie)']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Jest IP, nie ma internetu → sprawdź bramę i DNS (ping bramy, potem 8.8.8.8, potem nazwy).',
+     'Adres 169.254.x.x → problem DHCP (kabel, port, serwer, wyczerpany scope).',
+     'Strona po IP działa, po nazwie nie → DNS (flushdns, zmień serwer, sprawdź hosts).',
+     'Działa na kablu, nie na Wi-Fi → sterownik karty, profil sieci, sygnał, uwierzytelnianie.']}]},
+
+ {id:'win',cat:'Windows',c:'var(--win)',icon:'win',title:'Windows — system i CLI',
+  desc:'Rozruch, usługi, Podgląd zdarzeń, rejestr, UAC, profile, Windows Update oraz komendy CMD i PowerShell.',
+  tags:['PowerShell','Event Viewer','UAC','sfc','rejestr'],
+  blocks:[
+   {h:'Rozruch i tryby awaryjne',type:'ul',items:[
+     '<b>Proces rozruchu</b>: POST → bootloader (Windows Boot Manager) → jądro → sterowniki → logowanie.',
+     '<b>Tryb awaryjny</b> (Safe Mode) — minimalne sterowniki; do diagnozy sterowników/malware. Wejście: Shift+Restart → Rozwiązywanie problemów.',
+     '<b>WinRE</b> (środowisko odzyskiwania) — naprawa rozruchu, przywracanie, wiersz poleceń.',
+     '<b>Przywracanie systemu</b> (rstrui) — cofnięcie do punktu przywracania.',
+     '<b>BSOD</b> — zapisz kod błędu (stop code); zwykle sterownik lub sprzęt/RAM.']},
+   {h:'Zarządzanie systemem',type:'ul',items:[
+     '<b>Usługi</b> (<span class="term">services.msc</span>) — tryby: automatyczny / ręczny / wyłączony; automatyczny (opóźniony start).',
+     '<b>Podgląd zdarzeń</b> (<span class="term">eventvwr</span>) — dzienniki System / Application / Security; filtruj po poziomie (Błąd/Ostrzeżenie) i ID zdarzenia.',
+     '<b>Menedżer zadań / Resource Monitor</b> — CPU/RAM/dysk/sieć, autostart, zawieszone procesy.',
+     '<b>Harmonogram zadań</b> (taskschd.msc) — zadania uruchamiane wg czasu/zdarzenia.',
+     '<b>Konfiguracja systemu</b> (msconfig) — opcje rozruchu, usługi.',
+     '<b>UAC</b> — pyta o zgodę na działania administracyjne; nie wyłączaj „bo wyskakuje".']},
+   {h:'Rejestr i profile',type:'ul',items:[
+     '<b>Rejestr</b> (<span class="term">regedit</span>): HKLM (cała maszyna), HKCU (bieżący użytkownik), HKCR/HKU/HKCC.',
+     'Przed edycją rejestru — <b>eksportuj kopię</b> gałęzi.',
+     '<b>Profil użytkownika</b> w <span class="term">C:\\Users\\</span>; uszkodzony profil → test nowego konta lokalnego, by potwierdzić.',
+     '<b>Zmienne środowiskowe</b>: <span class="term">%TEMP%</span>, <span class="term">%APPDATA%</span>, <span class="term">PATH</span> — wpływają na działanie aplikacji.']},
+   {h:'PowerShell vs CMD',type:'ul',items:[
+     '<b>PowerShell</b> operuje na obiektach (.NET), CMD na tekście. PowerShell = dzisiejszy standard.',
+     '<b>Cmdlety</b> mają format Czasownik-Rzeczownik: Get-, Set-, New-, Remove-.',
+     '<b>Potok</b> (|) przekazuje obiekty: <span class="term">Get-Service | Where Status -eq Running</span>.',
+     '<b>Polityka wykonywania</b> skryptów: Get-ExecutionPolicy / Set-ExecutionPolicy RemoteSigned.']},
+   {h:'Komendy ratunkowe',type:'cmd',items:[
+     ['sfc /scannow','naprawa plików systemowych'],
+     ['DISM /Online /Cleanup-Image /RestoreHealth','naprawa obrazu Windows'],
+     ['chkdsk C: /f /r','sprawdzenie i naprawa dysku'],
+     ['gpupdate /force','wymuszenie zasad grupy'],
+     ['Get-EventLog System -Newest 20','ostatnie zdarzenia systemowe'],
+     ['Get-Process | Sort CPU -desc | Select -First 5','procesy żrące CPU'],
+     ['Restart-Service spooler','restart bufora wydruku'],
+     ['systeminfo','model, wersja, RAM, BIOS, czas pracy']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Wolny start → autostart + opóźnione usługi + dysk (Menedżer zadań → Uruchamianie).',
+     'Aplikacja się zawiesza tylko u jednego usera → test nowego profilu.',
+     'Błędy plików/aktualizacji → sfc + DISM, potem Windows Update troubleshooter.',
+     'Powtarzający się BSOD → zapisz stop code, zaktualizuj/cofnij sterownik, test RAM (mdsched).']}]},
+
+ {id:'ad',cat:'Active Directory',c:'var(--ad)',icon:'ad',title:'Active Directory',
+  desc:'Domeny i las, kontrolery, OU, użytkownicy, grupy (AGDLP), GPO, Kerberos, FSMO i replikacja w środowisku on-prem.',
+  tags:['domena','OU','GPO','Kerberos','FSMO'],
+  blocks:[
+   {h:'Struktura',type:'ul',items:[
+     '<b>Domena</b> — granica administracyjna i bezpieczeństwa; <b>drzewo</b> — domeny ze wspólną przestrzenią nazw; <b>las (forest)</b> — najwyższy kontener.',
+     '<b>Kontroler domeny (DC)</b> — przechowuje bazę AD i obsługuje logowania; min. dwa dla redundancji.',
+     '<b>OU (jednostka organizacyjna)</b> — kontener na obiekty; do OU podpinasz GPO i delegujesz uprawnienia.',
+     '<b>AD opiera się na DNS</b> — bez działającego DNS logowanie i replikacja padają (rekordy SRV!).',
+     '<b>Lokacje (sites)</b> i <b>replikacja</b> — DC synchronizują zmiany między sobą.']},
+   {h:'Użytkownicy i grupy',type:'ul',items:[
+     '<b>Grupy</b>: zabezpieczeń (uprawnienia + lista) vs dystrybucyjne (tylko poczta).',
+     '<b>Zakresy</b>: lokalna domenowa, globalna, uniwersalna.',
+     '<b>AGDLP</b> — dobra praktyka: Konto → Grupa Globalna → Grupa Domenowa Lokalna → Uprawnienie (Permission).',
+     '<b>Polityka haseł i blokady</b> — długość, złożoność, liczba błędnych prób przed lockoutem.',
+     '<b>UPN</b> (user@domena) vs <b>SAMAccountName</b> (DOMENA\\user) — dwie formy logowania.']},
+   {h:'GPO (zasady grupy)',type:'ul',items:[
+     '<b>GPO</b> — centralna konfiguracja komputerów i użytkowników (mapowanie dysków, polityka haseł, ustawienia pulpitu, restrykcje).',
+     'Kolejność stosowania: <b>L-S-D-OU</b> (Lokalna → Site → Domena → OU); późniejsza wygrywa.',
+     '<span class="term">gpresult /r</span> pokazuje zastosowane GPO; <span class="term">gpupdate /force</span> wymusza odświeżenie.',
+     '<b>Pętla zwrotna (loopback)</b> — wymusza zasady użytkownika wg komputera (np. terminale).']},
+   {h:'Uwierzytelnianie i role',type:'ul',items:[
+     '<b>Kerberos</b> — domyślny protokół logowania (bilety TGT/TGS); wymaga zsynchronizowanego czasu (NTP, ±5 min).',
+     '<b>LDAP</b> (389) / <b>LDAPS</b> (636) — zapytania do katalogu.',
+     '<b>Role FSMO</b> (5 ról jednomistrzowych): Schema Master, Domain Naming, RID, PDC Emulator (m.in. czas i lockouty), Infrastructure.']},
+   {h:'Komendy / narzędzia',type:'cmd',items:[
+     ['dsa.msc','Użytkownicy i komputery AD'],
+     ['gpmc.msc','zarządzanie zasadami grupy'],
+     ['Unlock-ADAccount jan.kowalski','odblokowanie konta'],
+     ['Set-ADAccountPassword -Reset','reset hasła (PS)'],
+     ['Get-ADUser jan.kowalski -Properties *','pełne właściwości konta'],
+     ['Search-ADAccount -LockedOut','konta zablokowane'],
+     ['gpresult /h raport.html','raport zastosowanych zasad'],
+     ['nltest /dsgetdc:domena','znajdź kontroler domeny']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Konto zablokowane po błędnych hasłach → Unlock-ADAccount; znajdź źródło (telefon z zapisanym starym hasłem).',
+     'Brak zmapowanego dysku → GPO, członkostwo w grupie/OU, gpupdate.',
+     '„The trust relationship failed" → zerwane konto komputera w domenie (re-join / Reset-ComputerMachinePassword).',
+     'Nie loguje się tylko na jednym DC → replikacja / czas / DNS.']}]},
+
+ {id:'m365',cat:'Microsoft 365',c:'var(--m365)',icon:'m365',title:'Microsoft 365 & Entra ID',
+  desc:'Entra ID, role administracyjne, licencje, MFA/SSPR, Conditional Access, Exchange Online i tożsamość hybrydowa.',
+  tags:['Entra ID','MFA','Conditional Access','Exchange','licencje'],
+  blocks:[
+   {h:'Tożsamość (Entra ID)',type:'ul',items:[
+     '<b>Entra ID</b> (dawniej Azure AD) — tożsamość w chmurze; logowanie do M365 i aplikacji SSO (SAML/OAuth/OIDC).',
+     '<b>Tożsamość hybrydowa</b>: <b>Entra Connect</b> synchronizuje konta z lokalnego AD; <b>Password Hash Sync</b> lub <b>Pass-through Auth</b>.',
+     '<b>Role administracyjne</b>: Global Admin (pełnia — ostrożnie!), User Admin, Helpdesk Admin (reset haseł), Exchange Admin, Intune Admin. Trzymaj się najmniejszych uprawnień.',
+     '<b>Grupy</b>: przypisane vs dynamiczne (członkostwo wg reguł, np. dział).']},
+   {h:'Logowanie i ochrona kont',type:'ul',items:[
+     '<b>MFA</b> — drugi składnik (Authenticator, klucz FIDO2, SMS jako ostateczność).',
+     '<b>SSPR</b> (self-service password reset) — user sam resetuje hasło po weryfikacji.',
+     '<b>Conditional Access</b> — reguły „kto / skąd / jakie urządzenie / jakie ryzyko" może się zalogować (np. blokada spoza kraju, wymóg zgodnego urządzenia).',
+     '<b>Security Defaults</b> vs <b>Conditional Access</b> — domyślne zabezpieczenia dla małych firm vs polityki granularne (wymaga licencji P1/P2).',
+     '<b>Identity Protection</b> (P2) — wykrywa ryzykowne logowania.']},
+   {h:'Licencje',type:'ul',items:[
+     '<b>Business</b>: Basic / Standard / Premium (Premium = Intune + zaawansowane bezpieczeństwo, do 300 użytkowników).',
+     '<b>Enterprise</b>: E3 (produktywność + podstawy bezpieczeństwa) / E5 (pełne bezpieczeństwo, analityka, telefonia).',
+     'Licencje przypisuje się do użytkownika lub <b>przez grupę</b> (group-based licensing).',
+     'Brak licencji = brak dostępu do usługi (typowa przyczyna „nie działa Teams/Office").']},
+   {h:'Exchange Online & usługi',type:'ul',items:[
+     '<b>Skrzynki</b>: zwykła, <b>współdzielona</b> (shared, do 50 GB bez licencji), <b>zasobu</b> (sale/sprzęt).',
+     '<b>Listy dystrybucyjne</b> vs <b>grupy M365</b> (te dają też SharePoint/Teams).',
+     '<b>Message Trace</b> — śledzenie, czy mail dotarł / gdzie utknął.',
+     '<b>Reguły skrzynki / przekierowania</b> — sprawdzaj przy podejrzeniu przejęcia konta!',
+     'SharePoint/OneDrive (pliki), Teams (czat/spotkania, oparte na grupach M365).']},
+   {h:'Narzędzia / konsole',type:'cmd',items:[
+     ['admin.microsoft.com','centrum administracyjne M365'],
+     ['entra.microsoft.com','tożsamość i dostęp'],
+     ['admin.exchange.microsoft.com','Exchange admin center'],
+     ['Connect-MgGraph -Scopes "User.Read.All"','Microsoft Graph PowerShell'],
+     ['Get-MgUser -UserId user@firma.pl','dane użytkownika'],
+     ['Connect-ExchangeOnline','moduł Exchange Online'],
+     ['Get-MessageTrace -RecipientAddress x','śledzenie poczty']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Reset MFA / ponowna rejestracja Authenticatora (rola Authentication/Helpdesk Admin).',
+     'Logowanie blokowane → sprawdź Conditional Access i logi logowania (sign-in logs).',
+     '„Nie działa Office/Teams" → najpierw sprawdź przypisaną licencję.',
+     'Mail nie dotarł → Message Trace; sprawdź spam/quarantine i reguły transportu.']}]},
+
+ {id:'intune',cat:'Endpoint',c:'var(--intune)',icon:'intune',title:'Intune & zarządzanie urządzeniami',
+  desc:'Typy rejestracji, profile, zasady zgodności, Autopilot, aplikacje Win32, update rings, BitLocker i wipe vs retire.',
+  tags:['MDM','Autopilot','compliance','BitLocker','.intunewin'],
+  blocks:[
+   {h:'Podstawy i rejestracja',type:'ul',items:[
+     '<b>MDM vs MAM</b>: MDM zarządza całym urządzeniem; MAM (app protection) chroni tylko dane firmowe w aplikacjach (typowe dla BYOD).',
+     '<b>Typy dołączenia (Windows)</b>: <b>Entra joined</b> (firmowe, w chmurze), <b>Hybrid Entra joined</b> (równolegle w AD on-prem), <b>Entra registered</b> (prywatne, BYOD).',
+     '<b>Enrollment</b> — rejestracja w Intune; Company Portal po stronie użytkownika.',
+     '<span class="term">dsregcmd /status</span> pokazuje stan dołączenia (AzureAdJoined, DomainJoined, MDM URL).']},
+   {h:'Konfiguracja i zgodność',type:'ul',items:[
+     '<b>Profile konfiguracyjne</b> — Wi-Fi, VPN, certyfikaty, restrykcje, ustawienia OS wypychane na urządzenia.',
+     '<b>Zasady zgodności (compliance)</b> — warunki: szyfrowanie, PIN/hasło, min. wersja OS, brak jailbreak/root, stan zagrożeń (z Defender).',
+     '<b>Conditional Access + compliance</b> — niezgodne urządzenie traci dostęp do firmowych zasobów.',
+     '<b>App protection policies</b> — wymóg PIN w aplikacji, blokada kopiuj-wklej do prywatnych apek, zdalne czyszczenie danych firmowych.']},
+   {h:'Wdrażanie i aktualizacje',type:'ul',items:[
+     '<b>Windows Autopilot</b> — nowy komputer rejestruje się sam i konfiguruje przy pierwszym uruchomieniu (bez ręcznego obrazu).',
+     '<b>Aplikacje</b>: Win32 (paczka <span class="term">.intunewin</span> z IntuneWinAppUtil), Store, LOB, Microsoft 365 Apps.',
+     '<b>Przypisania</b>: Required (wymuszone), Available (w Company Portal), Uninstall.',
+     '<b>Update rings</b> — pierścienie aktualizacji Windows (pilotaż → szerokie wdrożenie), odroczenia, deadline.',
+     '<b>BitLocker</b> przez Intune — wymuszenie szyfrowania + escrow klucza odzyskiwania do Entra.']},
+   {h:'Akcje na urządzeniu',type:'ul',items:[
+     '<b>Retire</b> — usuwa tylko dane/profile firmowe, zostawia prywatne (dla BYOD).',
+     '<b>Wipe</b> — przywraca ustawienia fabryczne (pełne czyszczenie).',
+     '<b>Sync / Restart / Locate / Reset passcode</b> — akcje zdalne z konsoli.',
+     '<b>Primary user</b> — główny użytkownik urządzenia (ważne dla self-service).']},
+   {h:'Konsole / narzędzia',type:'cmd',items:[
+     ['intune.microsoft.com','centrum Intune'],
+     ['dsregcmd /status','stan dołączenia do Entra'],
+     ['Company Portal','rejestracja i aplikacje (user)'],
+     ['IntuneWinAppUtil.exe','pakowanie aplikacji Win32'],
+     ['%ProgramData%\\Microsoft\\IntuneManagementExtension\\Logs','logi instalacji aplikacji']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Urządzenie „non-compliant" → sprawdź BitLocker, PIN, wersję OS, stan Defender; wymuś Sync.',
+     'Aplikacja się nie instaluje → złe przypisanie/grupa, brak zależności, sprawdź logi IME.',
+     'Autopilot nie kończy → sieć/Entra join/profil; sprawdź ESP (Enrollment Status Page).',
+     'Brak dostępu do zasobu firmowego → najczęściej niezgodność + Conditional Access.']}]},
+
+ {id:'apple',cat:'Apple',c:'var(--apple)',icon:'apple',title:'Apple w firmie (ABM / MDM)',
+  desc:'Apple Business Manager, ADE/DEP, nadzór, profile MDM, Activation Lock, Managed Apple ID i dystrybucja aplikacji.',
+  tags:['ABM','ADE/DEP','supervised','Activation Lock','VPP'],
+  blocks:[
+   {h:'Podstawy',type:'ul',items:[
+     '<b>Apple Business Manager (ABM)</b> — portal do zarządzania urządzeniami, kontami i aplikacjami Apple.',
+     '<b>Automated Device Enrollment (ADE, dawniej DEP)</b> — urządzenie kupione/dodane do ABM samo rejestruje się w MDM przy pierwszym uruchomieniu.',
+     '<b>Supervised</b> — tryb nadzoru (firmowe urządzenie) daje więcej restrykcji i kontroli niż zwykłe MDM.',
+     '<b>Managed Apple ID</b> — firmowe konto Apple zarządzane przez organizację (oddzielone od prywatnego).']},
+   {h:'Profile i restrykcje',type:'ul',items:[
+     '<b>Profile MDM</b> — wypychane ustawienia: Wi-Fi, VPN, certyfikaty, ograniczenia funkcji, konta poczty.',
+     '<b>Ograniczenia</b> tylko dla supervised: blokada wymazywania, AirDrop, instalacji aplikacji, zmiany konta.',
+     '<b>Sprawdzenie profilu</b>: Ustawienia → Ogólne → VPN i zarządzanie urządzeniem.',
+     'Na supervised <b>nie da się ręcznie usunąć</b> profilu MDM — to celowe zabezpieczenie.']},
+   {h:'Activation Lock (ważne!)',type:'ul',items:[
+     '<b>Activation Lock</b> blokuje urządzenie do prywatnego Apple ID po wymazaniu (część Find My).',
+     'Częsty problem: pracownik odszedł, urządzenie zablokowane na jego Apple ID.',
+     'Rozwiązanie zapobiegawcze: <b>supervised + zarządzany Activation Lock</b> przez MDM/ABM pozwala obejść/wyłączyć blokadę kodem.',
+     'Zawsze odsupervizuj/wyrejestruj urządzenie zanim trafi do nowego użytkownika.']},
+   {h:'Aplikacje i akcje',type:'ul',items:[
+     '<b>VPP (Apps and Books)</b> — masowy zakup i przypisanie aplikacji (do urządzenia lub użytkownika).',
+     '<b>Lost Mode</b> — zdalne zablokowanie i lokalizacja supervised urządzenia.',
+     '<b>Apple Configurator</b> — ręczna rejestracja/nadzór, dodanie urządzenia do ABM.',
+     'Akcje MDM: wipe, lock, clear passcode, update OS.']},
+   {h:'Narzędzia',type:'cmd',items:[
+     ['business.apple.com','Apple Business Manager'],
+     ['Apple Configurator','rejestracja / nadzór / dodanie do ABM'],
+     ['Ustawienia → Ogólne → VPN i zarządzanie','podgląd profilu MDM (iOS)'],
+     ['profiles status -type enrollment','stan rejestracji (macOS terminal)']]},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'iPhone nie pobiera profilu firmowego → przypisanie w ABM/MDM, sieć, restart rejestracji.',
+     'Po resecie żąda obcego Apple ID → Activation Lock; potrzebny zarządzany odblok lub poprzedni właściciel.',
+     'Nie da się usunąć MDM → urządzenie supervised (celowo).',
+     'Brak firmowej aplikacji → przypisanie VPP / brak miejsc w licencji.']}]},
+
+ {id:'sec',cat:'Bezpieczeństwo',c:'var(--sec)',icon:'sec',title:'Bezpieczeństwo i Defender',
+  desc:'Triada CIA, rodzaje zagrożeń, rodzina Defender, MFA, szyfrowanie, PKI, kopie zapasowe 3-2-1 i reakcja na incydent.',
+  tags:['Defender','MFA','phishing','BitLocker','backup'],
+  blocks:[
+   {h:'Fundamenty',type:'ul',items:[
+     '<b>Triada CIA</b>: Poufność (Confidentiality), Integralność (Integrity), Dostępność (Availability) — cele ochrony danych.',
+     '<b>Zasada najmniejszych uprawnień</b> — user dostaje tylko to, co konieczne; nie jest lokalnym adminem bez powodu.',
+     '<b>Zero Trust</b> — „nigdy nie ufaj, zawsze weryfikuj" (tożsamość + urządzenie + kontekst przy każdym dostępie).',
+     '<b>Defense in depth</b> — wiele warstw zabezpieczeń, nie jedna ściana.']},
+   {h:'Rodzaje zagrożeń',type:'ul',items:[
+     '<b>Malware</b>: wirus, robak (worm), trojan, <b>ransomware</b> (szyfruje dane dla okupu), spyware, rootkit, keylogger.',
+     '<b>Phishing</b> (mail), <b>spear phishing</b> (celowany), <b>vishing</b> (telefon), <b>smishing</b> (SMS).',
+     '<b>Inżynieria społeczna</b> — manipulacja człowiekiem (pilność, autorytet, strach). Najsłabsze ogniwo to user.',
+     '<b>BEC</b> (Business Email Compromise) — podszywanie się pod szefa/dostawcę po przelew.',
+     '<b>Brute force / credential stuffing</b> — atak na hasła (stąd MFA i blokady).']},
+   {h:'Rodzina Microsoft Defender',type:'ul',items:[
+     '<b>Defender Antivirus</b> — wbudowany antywirus Windows (ochrona w czasie rzeczywistym).',
+     '<b>Defender for Endpoint (MDE)</b> — EDR: wykrywanie, dochodzenie i reakcja na urządzeniach.',
+     '<b>Defender for Office 365</b> — ochrona poczty: Safe Links, Safe Attachments, anty-phishing.',
+     '<b>Defender for Identity</b> — wykrywanie ataków na tożsamość w lokalnym AD.',
+     '<b>Defender for Cloud Apps</b> (CASB) — widoczność i kontrola aplikacji SaaS.']},
+   {h:'Ochrona praktyczna',type:'ul',items:[
+     '<b>MFA wszędzie</b> — najważniejsza pojedyncza ochrona konta.',
+     '<b>Hasła</b>: długie frazy > skomplikowane krótkie; menedżer haseł; nie powtarzaj między serwisami.',
+     '<b>Szyfrowanie</b>: BitLocker (Windows), FileVault (macOS) — chroni dane na skradzionym sprzęcie (w spoczynku); TLS chroni w tranzycie.',
+     '<b>PKI / certyfikaty</b> — para kluczy publiczny/prywatny; CA poświadcza tożsamość (HTTPS, podpis, S/MIME).',
+     '<b>Aktualizacje (patching)</b> — łatanie podatności to podstawa higieny.',
+     '<b>Kopie zapasowe 3-2-1</b>: 3 kopie, 2 nośniki, 1 poza lokalizacją (offline chroni przed ransomware).']},
+   {h:'Reakcja na incydent (NIST)',type:'ul',items:[
+     'Etapy: <b>Przygotowanie → Wykrycie → Powstrzymanie → Eliminacja → Odtworzenie → Wnioski</b>.',
+     'Phishing/przejęcie konta: nie klikaj, zgłoś, <b>zablokuj konto + reset hasła + wyloguj sesje</b>, sprawdź reguły skrzynki i logi logowania.',
+     'Zgubiony/skradziony laptop → zdalny lock/wipe z Intune, sprawdź BitLocker.',
+     'Podejrzenie ransomware → <b>odłącz od sieci</b>, nie wyłączaj pochopnie, eskaluj.']}]},
+
+ {id:'help',cat:'Helpdesk',c:'var(--help)',icon:'help',title:'Helpdesk & ITIL',
+  desc:'Praktyki ITIL, cykl zgłoszenia, SLA i priorytety, eskalacja, KPI (FCR/MTTR/CSAT), baza wiedzy i komunikacja.',
+  tags:['ITIL','SLA','KPI','eskalacja','KB'],
+  blocks:[
+   {h:'Pojęcia ITIL',type:'ul',items:[
+     '<b>Incident</b> — coś nie działa; cel: jak najszybciej przywrócić usługę.',
+     '<b>Service Request</b> — standardowa prośba (dostęp, sprzęt, oprogramowanie).',
+     '<b>Problem</b> — przyczyna źródłowa powtarzających się incydentów (zarządzanie problemami).',
+     '<b>Change</b> — kontrolowana zmiana w środowisku (zarządzanie zmianą minimalizuje ryzyko).',
+     '<b>Known Error / Workaround</b> — znany błąd z obejściem do czasu trwałej naprawy.']},
+   {h:'SLA i priorytety',type:'ul',items:[
+     '<b>SLA</b> — uzgodniony czas reakcji i rozwiązania; OLA (wewnętrzne) i UC (z dostawcą).',
+     '<b>Priorytet = wpływ × pilność</b> (impact × urgency).',
+     'Cały dział offline > pojedynczy user > problem kosmetyczny.',
+     'VIP / system krytyczny może podnosić priorytet wg polityki firmy.',
+     '<b>Eskalacja funkcjonalna</b> (L1→L2→L3, wiedza) vs <b>hierarchiczna</b> (do menedżera, decyzje/SLA).']},
+   {h:'Cykl życia zgłoszenia',type:'ul',items:[
+     'Stany: <b>Nowe → Przypisane → W toku → Oczekuje (na usera/dostawcę) → Rozwiązane → Zamknięte</b>.',
+     '<b>First Contact Resolution (FCR)</b> — rozwiązanie przy pierwszym kontakcie (cel L1).',
+     'Dokumentuj każdy krok w tickecie — także próby nieudane.',
+     'Zamykaj dopiero po <b>potwierdzeniu przez użytkownika</b>.']},
+   {h:'KPI i jakość',type:'ul',items:[
+     '<b>FCR</b> — % rozwiązań przy pierwszym kontakcie.',
+     '<b>MTTR</b> — średni czas naprawy.',
+     '<b>CSAT</b> — satysfakcja użytkownika; <b>SLA compliance</b> — % w terminie.',
+     '<b>Shift-left</b> — przenoszenie rozwiązań do niższych poziomów/self-service (baza wiedzy, FAQ).']},
+   {h:'Komunikacja z użytkownikiem',type:'ul',items:[
+     'Potwierdź zgłoszenie i ustaw oczekiwania (co dalej, kiedy odpowiedź).',
+     'Mów językiem usera, nie żargonem; parafrazuj problem, by potwierdzić zrozumienie.',
+     'Bądź empatyczny przy frustracji — najpierw człowiek, potem ticket.',
+     'Aktualizuj status nawet gdy „nic się nie dzieje" — cisza buduje frustrację.']}]},
+
+ {id:'trbl',cat:'Metodyka',c:'var(--trbl)',icon:'trbl',title:'Metodyka troubleshootingu',
+  desc:'Uporządkowane podejście (metoda CompTIA), strategie izolacji problemu, pytania diagnostyczne i kiedy eskalować.',
+  tags:['CompTIA','hipoteza','izolacja','dokumentacja'],
+  blocks:[
+   {h:'6 kroków (metoda CompTIA)',type:'ul',items:[
+     '<b>1. Zidentyfikuj problem</b> — zbierz info, zapytaj „co się ostatnio zmieniło?", odtwórz jeśli się da.',
+     '<b>2. Postaw teorię</b> prawdopodobnej przyczyny (rozważ oczywiste najpierw).',
+     '<b>3. Przetestuj teorię</b> — potwierdź lub odrzuć; jeśli nie, postaw kolejną lub eskaluj.',
+     '<b>4. Zaplanuj działanie</b> i oceń skutki/ryzyko (kopia, okno serwisowe).',
+     '<b>5. Wdróż rozwiązanie</b> i zweryfikuj pełną funkcjonalność.',
+     '<b>6. Udokumentuj</b> — ticket, baza wiedzy, wnioski na przyszłość.']},
+   {h:'Strategie izolacji',type:'ul',items:[
+     '<b>Top-down / bottom-up po OSI</b> — od aplikacji w dół lub od kabla w górę.',
+     '<b>Dziel i zwyciężaj</b> — testuj w środku łańcucha, by połowić obszar problemu.',
+     '<b>Ustal zakres</b>: jeden user czy wielu? jedno urządzenie/aplikacja czy sieć? lokalnie czy globalnie?',
+     '<b>Zmieniaj jedną rzecz naraz</b> — inaczej nie wiesz, co zadziałało.',
+     '<b>Cofaj zmiany</b> po nieudanym teście, zanim spróbujesz kolejnej.']},
+   {h:'Dobre pytania diagnostyczne',type:'ul',items:[
+     '„Od kiedy to się dzieje? Działało wcześniej?"',
+     '„Co dokładnie robisz, gdy pojawia się błąd? Jaki komunikat?"',
+     '„Czy dotyczy tylko Ciebie, czy też kolegów?"',
+     '„Czy ostatnio coś się zmieniło — aktualizacja, nowe hasło, nowy sprzęt?"',
+     '„Czy da się to powtórzyć za każdym razem?"']},
+   {h:'Zasady i kiedy eskalować',type:'ul',items:[
+     'Najpierw najprostsze i najtańsze testy (restart, kabel, ponowne logowanie).',
+     'Objaw ≠ przyczyna — nie zakładaj, weryfikuj.',
+     'Eskaluj, gdy: brak uprawnień, przekroczony czas/SLA, ryzyko dla wielu userów, brak wiedzy/dostępu.',
+     'Przy eskalacji przekaż <b>komplet informacji</b> i co już sprawdziłeś — nie zaczynaj od zera.']}]},
+
+ {id:'hw',cat:'Sprzęt',c:'var(--hw)',icon:'hw',title:'Sprzęt, peryferia i drukarki',
+  desc:'Komponenty, diagnostyka sprzętu, BIOS/UEFI, drukarki (spooler, kolejki, sterowniki), dokowanie i monitory.',
+  tags:['POST','BIOS/UEFI','spooler','sterowniki','docking'],
+  blocks:[
+   {h:'Komponenty i diagnostyka',type:'ul',items:[
+     '<b>CPU, RAM, dysk (SSD/HDD/NVMe), GPU, zasilacz, płyta główna, bateria</b> — podstawowe podzespoły.',
+     '<b>POST</b> — autotest po włączeniu; sygnały dźwiękowe/diody wskazują wadliwy podzespół.',
+     '<b>BIOS/UEFI</b> — firmware: kolejność bootowania, Secure Boot, TPM (wymagany dla Win11/BitLocker), wirtualizacja.',
+     '<b>Objawy sprzętowe</b>: losowe restarty (zasilanie/temperatura), BSOD (RAM/sterownik), wolny dysk (SMART), brak obrazu (GPU/kabel/monitor).',
+     'Test RAM: <span class="term">mdsched</span>; stan dysku: SMART / narzędzie producenta.']},
+   {h:'Drukarki — najczęstsze zgłoszenia',type:'ul',items:[
+     '<b>Bufor wydruku (Print Spooler)</b> — zawieszone zadania; restart usługi + czyszczenie kolejki naprawia większość.',
+     '<b>Sterownik</b> — zły/uszkodzony powoduje krzaki lub brak druku; przeinstaluj właściwy.',
+     '<b>Porty druku</b>: RAW/9100 (najczęstszy), IPP/631, LPD/515, WSD (auto-wykrywanie).',
+     '<b>Drukarka sieciowa</b> — sprawdź IP/ping, kolejkę na serwerze wydruku, uprawnienia.',
+     '„Drukuje, ale puste/smugi" → toner/tusz, głowica, bęben — to już serwis/materiały.']},
+   {h:'Naprawa kolejki wydruku',type:'cmd',items:[
+     ['net stop spooler','zatrzymanie bufora wydruku'],
+     ['del /Q /F %systemroot%\\System32\\spool\\PRINTERS\\*','wyczyszczenie kolejki'],
+     ['net start spooler','ponowne uruchomienie bufora'],
+     ['Get-Printer','lista drukarek (PS)'],
+     ['ping 192.168.1.50','test łączności z drukarką sieciową']]},
+   {h:'Peryferia, monitory, dokowanie',type:'ul',items:[
+     '<b>Stacje dokujące</b> — częsta przyczyna problemów z monitorami/siecią; aktualizuj firmware doku i sterowniki.',
+     '<b>Monitory</b>: brak obrazu → kabel/wejście (HDMI/DP/USB-C), rozdzielczość, sterownik GPU; rozszerz vs duplikuj (Win+P).',
+     '<b>USB-C / Thunderbolt</b> — nie każdy kabel/port obsługuje obraz i zasilanie; sprawdź specyfikację.',
+     '<b>Peryferia</b> (mysz, klawiatura, headset) — test na innym porcie/komputerze, ładowanie, sparowanie Bluetooth.',
+     '<b>Sterowniki</b> — Menedżer urządzeń (devmgmt.msc); żółty wykrzyknik = problem; pobieraj ze strony producenta.']},
+   {h:'Typowe zgłoszenia',type:'ul',items:[
+     'Laptop nie ładuje → inny zasilacz/kabel, port, bateria; sprawdź diodę i BIOS.',
+     'Po podłączeniu doku gaśnie monitor → firmware doku + sterownik karty graficznej.',
+     'Nie drukuje → restart spoolera, wyczyść kolejkę, sprawdź sterownik i łączność.',
+     'Nie wykrywa USB → inny port, sterownik, test urządzenia na innym sprzęcie.']}]},
+
+ {id:'cisco',cat:'Sieci',c:'var(--cisco)',icon:'cisco',title:'Cisco IOS — podstawy',
+  desc:'Tryby pracy, konfiguracja interfejsów i VLAN, komendy show, podstawy SSH/haseł i diagnostyka łączności.',
+  tags:['IOS','tryby','VLAN','trunk','show'],
+  blocks:[
+   {h:'Tryby pracy',type:'ul',items:[
+     '<b>User EXEC</b> <span class="term">Switch&gt;</span> — podstawowy podgląd.',
+     '<b>Privileged EXEC</b> <span class="term">Switch#</span> — pełny podgląd + zapis (komenda <span class="term">enable</span>).',
+     '<b>Global config</b> <span class="term">Switch(config)#</span> — zmiany konfiguracji (<span class="term">configure terminal</span>).',
+     '<b>Tryby podrzędne</b>: interfejsu <span class="term">(config-if)#</span>, linii <span class="term">(config-line)#</span>, VLAN.',
+     'Wyjście: <span class="term">exit</span> (poziom w górę), <span class="term">end</span> lub Ctrl+Z (do privileged).']},
+   {h:'VLAN i interfejsy',type:'ul',items:[
+     '<b>VLAN</b> — logiczny podział przełącznika na osobne sieci L2.',
+     '<b>Access port</b> — port w jednym VLAN-ie (urządzenie końcowe).',
+     '<b>Trunk</b> — łącze przenoszące wiele VLAN-ów (802.1Q) między switchami.',
+     '<b>running-config</b> (działa teraz) vs <b>startup-config</b> (po restarcie) — pamiętaj o zapisie!']},
+   {h:'Podstawowe komendy show',type:'cmd',items:[
+     ['enable','wejście w tryb privileged'],
+     ['show running-config','aktualna konfiguracja'],
+     ['show ip interface brief','status + IP interfejsów'],
+     ['show vlan brief','lista VLAN-ów i portów'],
+     ['show mac address-table','tablica MAC'],
+     ['show interfaces status','stan/prędkość/duplex portów'],
+     ['show cdp neighbors','sąsiednie urządzenia Cisco']]},
+   {h:'Konfiguracja i bezpieczeństwo',type:'cmd',items:[
+     ['configure terminal','wejście w tryb konfiguracji'],
+     ['interface gi0/1','wybór interfejsu'],
+     ['switchport mode access / access vlan 10','przypisanie do VLAN'],
+     ['hostname SW1','nazwa urządzenia'],
+     ['enable secret HASLO','hasło do trybu privileged'],
+     ['copy running-config startup-config','zapis konfiguracji']]},
+   {h:'Uwagi praktyczne',type:'ul',items:[
+     'Zmiany działają od razu, ale bez zapisu znikną po restarcie (copy run start).',
+     'Komendy <span class="term">show</span> są bezpieczne — nie zmieniają konfiguracji.',
+     'Niezgodność <b>duplex/speed</b> między urządzeniami → błędy i wolne łącze.',
+     '<span class="term">?</span> w dowolnym miejscu podpowiada dostępne komendy.']}]},
+];
+
+// FLASHCARDS dataset
+const FLASH=[
+ ['Sieci','Co oznacza adres 169.254.x.x?','APIPA — host nie otrzymał adresu z DHCP. Sygnał problemu z serwerem/zakresem DHCP lub łącznością.'],
+ ['Sieci','Zakresy adresów prywatnych (RFC 1918)?','10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.'],
+ ['Sieci','Strona nie ładuje się po nazwie, ale po IP działa. Co podejrzewasz?','Problem z DNS.'],
+ ['Sieci','Wymień fazy procesu DHCP.','DORA: Discover, Offer, Request, Acknowledge.'],
+ ['Sieci','Na której warstwie OSI działa switch, a na której router?','Switch — L2 (łącza danych, MAC); router — L3 (sieciowa, IP).'],
+ ['Sieci','Jaki rekord DNS odpowiada za pocztę?','MX (Mail Exchange).'],
+ ['Sieci','Ile hostów mieści podsieć /24?','254 (256 minus adres sieci i broadcast).'],
+ ['Sieci','Komenda do wyczyszczenia cache DNS w Windows?','ipconfig /flushdns.'],
+ ['Sieci','Co robi ARP?','Mapuje adres IP na adres MAC w sieci lokalnej.'],
+ ['Windows','Komenda naprawiająca uszkodzone pliki systemowe?','sfc /scannow, a przy braku skutku DISM /Online /Cleanup-Image /RestoreHealth.'],
+ ['Windows','Gdzie sprawdzisz logi błędów systemu?','Podgląd zdarzeń (eventvwr) — dzienniki System / Application / Security.'],
+ ['Windows','Różnica HKLM vs HKCU w rejestrze?','HKLM = ustawienia całej maszyny; HKCU = ustawienia bieżącego użytkownika.'],
+ ['Windows','Po co tryb awaryjny (Safe Mode)?','Uruchamia minimalne sterowniki — do diagnozy sterowników i malware.'],
+ ['Windows','Jak potwierdzić, że problem leży w profilu użytkownika?','Przetestować na nowym/innym koncie — jeśli działa, profil jest uszkodzony.'],
+ ['Windows','Czym różni się PowerShell od CMD?','PowerShell operuje na obiektach (.NET) i ma potok obiektowy; CMD na tekście.'],
+ ['AD','Do czego służy GPO?','Zasady grupy — centralna konfiguracja komputerów/użytkowników podpięta do OU/domeny.'],
+ ['AD','Konto zablokowane po błędnych hasłach — co robisz?','Unlock-ADAccount (lub w dsa.msc) i ustal źródło blokady (np. stare hasło na telefonie).'],
+ ['AD','Jaki protokół uwierzytelnia logowanie w domenie i czego wymaga?','Kerberos — wymaga zsynchronizowanego czasu (±5 min, NTP).'],
+ ['AD','Od jakiej usługi krytycznie zależy AD?','Od DNS (rekordy SRV) — bez DNS logowanie i replikacja nie działają.'],
+ ['AD','Co to AGDLP?','Account → Global group → Domain Local group → Permission — dobra praktyka nadawania uprawnień.'],
+ ['AD','Kolejność stosowania GPO?','L-S-D-OU: Lokalna, Site, Domena, OU; późniejsza nadpisuje wcześniejszą.'],
+ ['M365','Czym jest Entra ID?','Tożsamość w chmurze (dawniej Azure AD) — logowanie do M365 i aplikacji SSO.'],
+ ['M365','Co robi Conditional Access?','Wymusza reguły dostępu zależnie od użytkownika, lokalizacji, urządzenia i ryzyka.'],
+ ['M365','Co synchronizuje Entra Connect?','Konta z lokalnego Active Directory do Entra ID (tożsamość hybrydowa).'],
+ ['M365','Co to SSPR?','Self-Service Password Reset — samodzielny reset hasła przez użytkownika po weryfikacji.'],
+ ['M365','User mówi „nie działa mi Teams". Pierwszy krok?','Sprawdzić przypisaną licencję.'],
+ ['M365','Narzędzie do sprawdzenia, czy mail dotarł?','Message Trace w Exchange admin center.'],
+ ['M365','Czym jest skrzynka współdzielona (shared mailbox)?','Wspólna skrzynka (do 50 GB) bez osobnej licencji, dostępna dla wielu osób.'],
+ ['Intune','Różnica MDM vs MAM?','MDM zarządza całym urządzeniem; MAM tylko aplikacjami/danymi firmowymi (typowe dla BYOD).'],
+ ['Intune','Po co jest Windows Autopilot?','Automatyczne wdrożenie nowego komputera bez ręcznej instalacji obrazu.'],
+ ['Intune','Urządzenie jest „non-compliant" — co sprawdzasz?','Warunki zasady zgodności: szyfrowanie, PIN/hasło, wersja OS, stan zagrożeń.'],
+ ['Intune','Różnica retire vs wipe?','Retire usuwa tylko dane firmowe (zostawia prywatne); wipe przywraca ustawienia fabryczne.'],
+ ['Intune','Jakie rozszerzenie ma spakowana aplikacja Win32 do Intune?','.intunewin (z narzędzia IntuneWinAppUtil).'],
+ ['Intune','Komenda pokazująca stan dołączenia do Entra na Windows?','dsregcmd /status.'],
+ ['Apple','Co to ADE/DEP w Apple Business Manager?','Automatyczna rejestracja urządzenia w MDM przy pierwszym uruchomieniu.'],
+ ['Apple','Dlaczego nie można usunąć profilu MDM z iPhone?','Urządzenie jest supervised / zarejestrowane przez ABM — to celowe.'],
+ ['Apple','Co to Activation Lock i jak go uniknąć w firmie?','Blokada do prywatnego Apple ID po wymazaniu; zapobiega supervised + zarządzany Activation Lock w MDM/ABM.'],
+ ['Apple','Do czego służy VPP w ABM?','Masowy zakup i dystrybucja aplikacji do urządzeń/użytkowników.'],
+ ['Bezpieczeństwo','Czym jest Defender for Endpoint?','EDR — wykrywanie i reagowanie na zagrożenia na urządzeniach końcowych.'],
+ ['Bezpieczeństwo','Najskuteczniejsza pojedyncza ochrona konta?','MFA (uwierzytelnianie wieloskładnikowe).'],
+ ['Bezpieczeństwo','Co oznacza triada CIA?','Confidentiality, Integrity, Availability — poufność, integralność, dostępność.'],
+ ['Bezpieczeństwo','Na czym polega zasada 3-2-1 w kopiach zapasowych?','3 kopie, 2 różne nośniki, 1 poza lokalizacją (offline).'],
+ ['Bezpieczeństwo','Pierwsze kroki przy przejęciu konta po phishingu?','Zablokuj konto, reset hasła, wyloguj sesje, sprawdź reguły skrzynki i logi logowania.'],
+ ['Bezpieczeństwo','Co robi ransomware?','Szyfruje dane ofiary i żąda okupu za odszyfrowanie.'],
+ ['Helpdesk','Incident vs Service Request?','Incident = coś nie działa (przywróć usługę); Request = prośba o usługę/dostęp/sprzęt.'],
+ ['Helpdesk','Jak zwykle liczony jest priorytet?','Wpływ × pilność (impact × urgency).'],
+ ['Helpdesk','Kiedy zamknąć zgłoszenie?','Po potwierdzeniu rozwiązania przez użytkownika i udokumentowaniu.'],
+ ['Helpdesk','Co oznacza FCR?','First Contact Resolution — rozwiązanie przy pierwszym kontakcie.'],
+ ['Helpdesk','Eskalacja funkcjonalna vs hierarchiczna?','Funkcjonalna — do wyższego poziomu wiedzy (L1→L2→L3); hierarchiczna — do menedżera.'],
+ ['Metodyka','Dlaczego testować jedną zmianę naraz?','Inaczej nie wiadomo, która zmiana rozwiązała problem.'],
+ ['Metodyka','Najlepsze pierwsze pytanie diagnostyczne?','„Co się ostatnio zmieniło?" — aktualizacja, hasło, nowy sprzęt.'],
+ ['Metodyka','Wymień 6 kroków metody CompTIA.','Zidentyfikuj problem, postaw teorię, przetestuj, zaplanuj, wdróż i zweryfikuj, udokumentuj.'],
+ ['Metodyka','Kiedy eskalować zgłoszenie?','Brak uprawnień/wiedzy/dostępu, ryzyko dla wielu userów lub przekroczenie SLA.'],
+ ['Sprzęt','Co to POST?','Power-On Self-Test — autotest podzespołów po włączeniu; sygnały wskazują wadliwy element.'],
+ ['Sprzęt','Najczęstsza naprawa „nie drukuje"?','Restart usługi Print Spooler + wyczyszczenie kolejki wydruku.'],
+ ['Sprzęt','Co jest wymagane dla BitLocker i Windows 11?','Moduł TPM (oraz Secure Boot dla Win11).'],
+ ['Sprzęt','Monitor po podłączeniu doku gaśnie — od czego zacząć?','Firmware stacji dokującej i sterownik karty graficznej.'],
+ ['Sprzęt','Skrót do przełączania trybu wyświetlania w Windows?','Win+P (rozszerz / duplikuj / tylko jeden ekran).'],
+ ['Cisco','Komenda pokazująca status interfejsów i ich IP?','show ip interface brief.'],
+ ['Cisco','Jak zapisać konfigurację, by przetrwała restart?','copy running-config startup-config.'],
+ ['Cisco','Czym różni się port access od trunk?','Access — jeden VLAN (urządzenie końcowe); trunk — wiele VLAN-ów (802.1Q) między switchami.'],
+ ['Cisco','Jak wejść z trybu user do privileged EXEC?','Komenda enable (znak zmienia się z > na #).'],
+];
+
+let progress={};
+try{progress=JSON.parse(localStorage.getItem('itsupp_progress'))||{};}catch(e){progress={};}
+function save(){try{localStorage.setItem('itsupp_progress',JSON.stringify(progress));}catch(e){}}
+
+let activeCat='all',query='';
+const grid=document.getElementById('grid'),pills=document.getElementById('pills');
+
+const cats=[{id:'all',label:'Wszystko',c:'var(--accent)'},...DATA.map(d=>({id:d.id,label:d.title.split(' ')[0]+(d.cat?' · '+d.cat:''),c:d.c,raw:d}))];
+function buildPills(){
+  pills.innerHTML='';
+  const all=document.createElement('button');all.className='pill on';all.dataset.id='all';
+  all.innerHTML='<span class="d" style="background:var(--accent)"></span>Wszystko';
+  all.onclick=()=>{activeCat='all';render();};pills.appendChild(all);
+  DATA.forEach(d=>{
+    const b=document.createElement('button');b.className='pill';b.dataset.id=d.id;
+    b.innerHTML=`<span class="d" style="background:${d.c}"></span>${d.title}`;
+    b.onclick=()=>{activeCat=d.id;render();};pills.appendChild(b);
+  });
+}
+
+function matches(d){
+  const inCat=activeCat==='all'||d.id===activeCat;
+  if(!inCat)return false;
+  if(!query)return true;
+  const hay=(d.title+' '+d.desc+' '+d.cat+' '+d.tags.join(' ')+' '+JSON.stringify(d.blocks)).toLowerCase();
+  return hay.includes(query);
+}
+
+function render(){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p.dataset.id===activeCat));
+  const list=DATA.filter(matches);
+  grid.innerHTML='';
+  document.getElementById('empty').style.display=list.length?'none':'block';
+  list.forEach(d=>{
+    const done=!!progress[d.id];
+    const card=document.createElement('div');
+    card.className='card'+(done?' done':'');card.style.setProperty('--c',d.c);
+    let blocks='';
+    d.blocks.forEach(b=>{
+      let inner='';
+      if(b.type==='cmd'){inner='<div class="cmds">'+b.items.map(it=>`<div class="cmd"><code>${it[0]}</code><span>${it[1]}</span></div>`).join('')+'</div>';}
+      else{inner='<ul>'+b.items.map(it=>`<li>${it}</li>`).join('')+'</ul>';}
+      blocks+=`<div class="block"><h4>${b.h}</h4>${inner}</div>`;
+    });
+    card.innerHTML=`
+      <div class="card-head">
+        <div class="ch-top">
+          <div class="ci">${ICONS[d.icon]}</div>
+          <div class="ct"><h3>${d.title}</h3><div class="cat">${d.cat}</div></div>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+        <div class="card-desc">${d.desc}</div>
+        <div class="ch-foot"><div class="tags">${d.tags.map(t=>`<span class="tg">${t}</span>`).join('')}</div></div>
+      </div>
+      <div class="card-body"><div class="cb-inner">${blocks}
+        <button class="done-btn">${done?'✓ Opanowane':'Oznacz jako opanowane'}</button>
+      </div></div>`;
+    card.querySelector('.card-head').onclick=()=>card.classList.toggle('open');
+    card.querySelector('.done-btn').onclick=(e)=>{e.stopPropagation();progress[d.id]=!progress[d.id];save();render();updateRing();};
+    grid.appendChild(card);
+  });
+  updateRing();
+}
+
+function updateRing(){
+  const total=DATA.length,done=DATA.filter(d=>progress[d.id]).length;
+  const pct=total?Math.round(done/total*100):0;
+  const circ=2*Math.PI*21;
+  document.getElementById('ringFill').style.strokeDashoffset=circ*(1-pct/100);
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('doneN').textContent=done+'/'+total;
+}
+
+document.getElementById('search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();render();});
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Wyzerować postęp nauki?')){progress={};save();render();}};
+
+// FLASHCARDS
+let order=[...FLASH.keys()],idx=0;
+const overlay=document.getElementById('overlay'),flash=document.getElementById('flash');
+function showFlash(){
+  const f=FLASH[order[idx]];
+  document.getElementById('fcTag').textContent=f[0];
+  document.getElementById('fcQ').textContent=f[1];
+  document.getElementById('fcA').textContent=f[2];
+  flash.classList.remove('flipped');
+  document.getElementById('fcCount').textContent=`${idx+1} / ${FLASH.length}`;
+}
+document.getElementById('flashBtn').onclick=()=>{order=[...FLASH.keys()];idx=0;showFlash();overlay.classList.add('show');};
+document.getElementById('fcClose').onclick=()=>overlay.classList.remove('show');
+overlay.onclick=e=>{if(e.target===overlay)overlay.classList.remove('show');};
+flash.onclick=()=>flash.classList.toggle('flipped');
+document.getElementById('fcNext').onclick=()=>{idx=(idx+1)%FLASH.length;showFlash();};
+document.getElementById('fcPrev').onclick=()=>{idx=(idx-1+FLASH.length)%FLASH.length;showFlash();};
+document.getElementById('fcShuffle').onclick=()=>{for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}idx=0;showFlash();};
+document.addEventListener('keydown',e=>{
+  if(!overlay.classList.contains('show'))return;
+  if(e.key==='ArrowRight')document.getElementById('fcNext').click();
+  if(e.key==='ArrowLeft')document.getElementById('fcPrev').click();
+  if(e.key===' '){e.preventDefault();flash.classList.toggle('flipped');}
+  if(e.key==='Escape')overlay.classList.remove('show');
+});
+
+buildPills();render();
+
+/* ============ TAB SWITCHING ============ */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  const id=t.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id));
+  const rw=document.getElementById('ringWrap'); if(rw) rw.style.display = (id==='classroom')?'':'none';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ============ COMMAND KNOWLEDGE BASE ============ */
+const SHELLS={
+  'CMD':'var(--win)','PowerShell':'var(--accent)','Bash / Linux':'var(--intune)',
+  'macOS':'var(--apple)','Cisco IOS':'var(--cisco)'
+};
+const COMMANDS=[
+ // ---- CMD ----
+ {s:'CMD',c:'ipconfig /all',d:'Pełna konfiguracja kart sieciowych: IP, maska, brama, serwery DNS, MAC, DHCP.'},
+ {s:'CMD',c:'ipconfig /flushdns',d:'Czyści lokalny cache DNS — gdy strona nie działa po nazwie, a po IP tak.'},
+ {s:'CMD',c:'ipconfig /release && ipconfig /renew',d:'Zwalnia i pobiera nowy adres z DHCP (naprawa APIPA 169.254.x.x).'},
+ {s:'CMD',c:'ping 8.8.8.8',d:'Test łączności po adresie IP (z pominięciem DNS).',e:'ping -t host — ciągły; ping -n 10 host — 10 pakietów'},
+ {s:'CMD',c:'tracert example.com',d:'Pokazuje trasę pakietów i na którym przeskoku urywa się łączność.'},
+ {s:'CMD',c:'pathping example.com',d:'Tracert + statystyka strat pakietów na każdym przeskoku.'},
+ {s:'CMD',c:'nslookup example.com 8.8.8.8',d:'Sprawdza rozwiązywanie nazw na wskazanym serwerze DNS.'},
+ {s:'CMD',c:'netstat -ano',d:'Aktywne połączenia i nasłuchujące porty wraz z PID procesu.'},
+ {s:'CMD',c:'arp -a',d:'Tablica powiązań adres IP ↔ adres MAC w sieci lokalnej.'},
+ {s:'CMD',c:'getmac /v',d:'Adresy MAC kart sieciowych komputera.'},
+ {s:'CMD',c:'route print',d:'Tablica routingu hosta (trasy, brama domyślna).'},
+ {s:'CMD',c:'netsh int ip reset && netsh winsock reset',d:'Reset stosu TCP/IP i Winsock — uporczywe problemy sieciowe (wymaga restartu).'},
+ {s:'CMD',c:'netsh wlan show profiles',d:'Lista zapisanych profili Wi-Fi; dodaj nazwę profilu + key=clear, by zobaczyć hasło.'},
+ {s:'CMD',c:'sfc /scannow',d:'Skanuje i naprawia uszkodzone pliki systemowe Windows.'},
+ {s:'CMD',c:'DISM /Online /Cleanup-Image /RestoreHealth',d:'Naprawia obraz systemu, gdy sfc nie daje rady.'},
+ {s:'CMD',c:'chkdsk C: /f /r',d:'Sprawdza i naprawia błędy dysku oraz sektory (przy starcie).'},
+ {s:'CMD',c:'gpupdate /force',d:'Wymusza ponowne zastosowanie zasad grupy (GPO).'},
+ {s:'CMD',c:'gpresult /r',d:'Pokazuje, które zasady GPO są zastosowane do użytkownika i komputera.'},
+ {s:'CMD',c:'systeminfo',d:'Model, wersja systemu, RAM, BIOS, czas pracy, poprawki.'},
+ {s:'CMD',c:'tasklist | findstr nazwa',d:'Lista procesów; filtrowanie po nazwie.',e:'taskkill /PID 1234 /F — zakończ proces po PID'},
+ {s:'CMD',c:'shutdown /r /t 0',d:'Natychmiastowy restart komputera.',e:'/s = wyłącz, /a = anuluj, /f = wymuś'},
+ {s:'CMD',c:'net user jan /domain',d:'Informacje o koncie domenowym (grupy, wygaśnięcie hasła, blokada).'},
+ {s:'CMD',c:'net use Z: \\\\serwer\\udzial /persistent:yes',d:'Mapuje dysk sieciowy do litery Z.'},
+ {s:'CMD',c:'whoami /groups',d:'Pokazuje grupy i uprawnienia bieżącego użytkownika.'},
+ {s:'CMD',c:'dsregcmd /status',d:'Stan dołączenia do Entra ID/AD oraz rejestracji w Intune (MDM).'},
+ {s:'CMD',c:'robocopy zrodlo cel /E /Z',d:'Solidne kopiowanie katalogów (z podkatalogami, wznawialne).'},
+
+ // ---- PowerShell ----
+ {s:'PowerShell',c:'Get-Service | Where Status -eq Stopped',d:'Lista usług; tu zatrzymanych. Restart: Restart-Service nazwa.'},
+ {s:'PowerShell',c:'Get-Process | Sort CPU -Descending | Select -First 5',d:'Pięć procesów najmocniej obciążających CPU.'},
+ {s:'PowerShell',c:'Get-WinEvent -LogName System -MaxEvents 20',d:'Najnowsze zdarzenia z dziennika systemowego.'},
+ {s:'PowerShell',c:'Test-NetConnection host -Port 443',d:'Test dostępności konkretnego portu na hoście.'},
+ {s:'PowerShell',c:'Get-NetIPConfiguration',d:'Czytelna konfiguracja IP, bramy i DNS (odpowiednik ipconfig).'},
+ {s:'PowerShell',c:'Resolve-DnsName example.com',d:'Zapytanie DNS z poziomu PowerShell.'},
+ {s:'PowerShell',c:'Clear-DnsClientCache',d:'Czyści cache DNS (jak ipconfig /flushdns).'},
+ {s:'PowerShell',c:'Get-ComputerInfo',d:'Zbiorcze informacje o systemie i sprzęcie.'},
+ {s:'PowerShell',c:'Set-ExecutionPolicy RemoteSigned -Scope CurrentUser',d:'Pozwala uruchamiać lokalne skrypty (zdalne muszą być podpisane).'},
+ {s:'PowerShell',c:'Get-Help Get-Service -Examples',d:'Pomoc i przykłady użycia dowolnego cmdletu.'},
+ {s:'PowerShell',c:'Get-LocalGroupMember Administratorzy',d:'Członkowie lokalnej grupy administratorów.'},
+ {s:'PowerShell',c:'Get-Printer | Format-Table Name,PrinterStatus',d:'Lista drukarek i ich status.'},
+ {s:'PowerShell',c:'Restart-Service Spooler',d:'Restart bufora wydruku (naprawa zawieszonej kolejki).'},
+ {s:'PowerShell',c:'Unlock-ADAccount jan.kowalski',d:'Odblokowanie konta w Active Directory (moduł RSAT/AD).'},
+ {s:'PowerShell',c:'Set-ADAccountPassword jan.kowalski -Reset',d:'Reset hasła konta AD; dodaj -ChangePasswordAtLogon $true.'},
+ {s:'PowerShell',c:'Search-ADAccount -LockedOut',d:'Znajduje wszystkie zablokowane konta w domenie.'},
+ {s:'PowerShell',c:'Connect-MgGraph -Scopes "User.Read.All"',d:'Logowanie do Microsoft Graph (zarządzanie Entra ID / M365).'},
+ {s:'PowerShell',c:'Get-MgUser -UserId user@firma.pl',d:'Dane użytkownika z Entra ID przez Graph.'},
+ {s:'PowerShell',c:'Connect-ExchangeOnline',d:'Połączenie z Exchange Online do zarządzania pocztą.'},
+ {s:'PowerShell',c:'Get-MessageTrace -RecipientAddress user@firma.pl',d:'Śledzenie, czy i gdzie dotarła wiadomość.'},
+ {s:'PowerShell',c:'Restart-Computer -Force',d:'Wymuszony restart (także zdalny z -ComputerName).'},
+
+ // ---- Bash / Linux ----
+ {s:'Bash / Linux',c:'ip a',d:'Adresy IP i stan interfejsów (następca ifconfig).'},
+ {s:'Bash / Linux',c:'ip r',d:'Tablica routingu i brama domyślna.'},
+ {s:'Bash / Linux',c:'ping -c 4 8.8.8.8',d:'Cztery pakiety testu łączności.'},
+ {s:'Bash / Linux',c:'dig example.com',d:'Szczegółowe zapytanie DNS (alternatywa: nslookup).'},
+ {s:'Bash / Linux',c:'ss -tulpn',d:'Otwarte porty i nasłuchujące usługi (następca netstat).'},
+ {s:'Bash / Linux',c:'systemctl status nazwa',d:'Stan usługi; restart/start/stop/enable analogicznie.'},
+ {s:'Bash / Linux',c:'journalctl -xe',d:'Najnowsze logi systemowe z błędami (systemd).'},
+ {s:'Bash / Linux',c:'top',d:'Procesy w czasie rzeczywistym; htop ładniejszy, jeśli dostępny.'},
+ {s:'Bash / Linux',c:'df -h',d:'Zajętość dysków w czytelnych jednostkach.',e:'du -sh * — rozmiar plików/katalogów'},
+ {s:'Bash / Linux',c:'free -h',d:'Zużycie pamięci RAM i swap.'},
+ {s:'Bash / Linux',c:'ps aux | grep nazwa',d:'Wyszukanie procesu; zakończenie: kill PID lub kill -9 PID.'},
+ {s:'Bash / Linux',c:'chmod 644 plik',d:'Zmiana uprawnień; chown user:grupa plik — zmiana właściciela.'},
+ {s:'Bash / Linux',c:'grep -r "tekst" /sciezka',d:'Rekurencyjne wyszukiwanie tekstu w plikach.'},
+ {s:'Bash / Linux',c:'find /sciezka -name "*.log"',d:'Wyszukiwanie plików po nazwie/wzorcu.'},
+ {s:'Bash / Linux',c:'tail -f /var/log/syslog',d:'Podgląd logu na żywo (dopisywane linie).'},
+ {s:'Bash / Linux',c:'sudo apt update && sudo apt upgrade',d:'Aktualizacja pakietów (Debian/Ubuntu).'},
+ {s:'Bash / Linux',c:'cat /etc/os-release',d:'Nazwa i wersja dystrybucji; uname -a — jądro i architektura.'},
+
+ // ---- macOS ----
+ {s:'macOS',c:'ifconfig',d:'Konfiguracja interfejsów sieciowych.'},
+ {s:'macOS',c:'networksetup -getinfo Wi-Fi',d:'IP, maska, router i DNS dla danej usługi sieciowej.'},
+ {s:'macOS',c:'scutil --dns',d:'Aktualna konfiguracja resolvera DNS.'},
+ {s:'macOS',c:'sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder',d:'Czyszczenie cache DNS na macOS.'},
+ {s:'macOS',c:'sw_vers',d:'Wersja systemu macOS.'},
+ {s:'macOS',c:'system_profiler SPHardwareDataType',d:'Informacje o sprzęcie (model, CPU, RAM, numer seryjny).'},
+ {s:'macOS',c:'diskutil list',d:'Lista dysków i woluminów.'},
+ {s:'macOS',c:'profiles status -type enrollment',d:'Stan rejestracji w MDM (zarządzanie urządzeniem).'},
+ {s:'macOS',c:'killall Finder',d:'Restart Findera (odpowiednik odświeżenia powłoki).'},
+ {s:'macOS',c:'softwareupdate -l',d:'Lista dostępnych aktualizacji systemu.'},
+ {s:'macOS',c:'sudo purge',d:'Wymuszenie zwolnienia nieaktywnej pamięci.'},
+
+ // ---- Cisco IOS ----
+ {s:'Cisco IOS',c:'enable',d:'Wejście z trybu user (>) do privileged EXEC (#).'},
+ {s:'Cisco IOS',c:'configure terminal',d:'Wejście w tryb globalnej konfiguracji.'},
+ {s:'Cisco IOS',c:'show running-config',d:'Aktualnie działająca konfiguracja urządzenia.'},
+ {s:'Cisco IOS',c:'show ip interface brief',d:'Skrócony status interfejsów: stan i adresy IP.'},
+ {s:'Cisco IOS',c:'show vlan brief',d:'Lista VLAN-ów i przypisanych portów.'},
+ {s:'Cisco IOS',c:'show mac address-table',d:'Powiązania adresów MAC z portami przełącznika.'},
+ {s:'Cisco IOS',c:'show interfaces status',d:'Stan, prędkość i duplex portów.'},
+ {s:'Cisco IOS',c:'show cdp neighbors',d:'Sąsiednie urządzenia Cisco (mapowanie topologii).'},
+ {s:'Cisco IOS',c:'show version',d:'Model, wersja IOS, czas pracy, numer seryjny.'},
+ {s:'Cisco IOS',c:'interface gigabitEthernet 0/1',d:'Wybór interfejsu do konfiguracji.'},
+ {s:'Cisco IOS',c:'switchport mode access',d:'Ustawia port jako access; potem: switchport access vlan 10.'},
+ {s:'Cisco IOS',c:'switchport mode trunk',d:'Ustawia port jako trunk (wiele VLAN-ów, 802.1Q).'},
+ {s:'Cisco IOS',c:'enable secret HASLO',d:'Hasło (zaszyfrowane) do trybu privileged EXEC.'},
+ {s:'Cisco IOS',c:'copy running-config startup-config',d:'Zapis konfiguracji, by przetrwała restart (= write memory).'},
+];
+const SHELL_NAMES=Object.keys(SHELLS);
+let cmdShell='all',cmdQ='';
+function buildCmdPills(){
+  const p=document.getElementById('cmdPills');p.innerHTML='';
+  const mk=(id,label,col)=>{const b=document.createElement('button');b.className='pill'+(cmdShell===id?' on':'');b.dataset.id=id;b.innerHTML=(col?`<span class="d" style="background:${col}"></span>`:'')+label;b.onclick=()=>{cmdShell=id;renderCmd();};return b;};
+  p.appendChild(mk('all','Wszystkie',null));
+  SHELL_NAMES.forEach(s=>p.appendChild(mk(s,s,SHELLS[s])));
+}
+function renderCmd(){
+  document.querySelectorAll('#cmdPills .pill').forEach(x=>x.classList.toggle('on',x.dataset.id===cmdShell));
+  const list=COMMANDS.filter(c=>(cmdShell==='all'||c.s===cmdShell)&&(!cmdQ||(c.c+' '+c.d+' '+c.s+(c.e||'')).toLowerCase().includes(cmdQ)));
+  const el=document.getElementById('cmdList');el.innerHTML='';
+  document.getElementById('cmdEmpty').style.display=list.length?'none':'block';
+  let lastShell=null;
+  list.forEach(c=>{
+    if(c.s!==lastShell){
+      lastShell=c.s;
+      const gh=document.createElement('div');gh.className='cmd-grouphead';gh.style.setProperty('--c',SHELLS[c.s]);
+      gh.innerHTML=`${c.s} <span class="gline"></span>`;el.appendChild(gh);
+    }
+    const e=document.createElement('div');e.className='cmd-entry';e.style.setProperty('--c',SHELLS[c.s]);
+    e.innerHTML=`<div class="cmd-top"><code class="cmd-code">${c.c.replace(/</g,'&lt;')}</code>
+      <span class="cmd-badge">${c.s}</span>
+      <button class="copy-btn" title="Kopiuj">⧉</button></div>
+      <div class="cmd-d">${c.d}</div>${c.e?`<div class="cmd-ex">${c.e.replace(/</g,'&lt;')}</div>`:''}`;
+    e.querySelector('.copy-btn').onclick=(ev)=>{
+      const btn=ev.currentTarget;
+      navigator.clipboard?.writeText(c.c).then(()=>{btn.textContent='✓';btn.classList.add('ok');setTimeout(()=>{btn.textContent='⧉';btn.classList.remove('ok');},1200);}).catch(()=>{});
+    };
+    el.appendChild(e);
+  });
+}
+document.getElementById('cmdSearch').addEventListener('input',e=>{cmdQ=e.target.value.trim().toLowerCase();renderCmd();});
+
+/* ============ SCENARIOS (decision trees) ============ */
+const SCENARIOS=[
+ {id:'net',title:'Brak dostępu do internetu',cat:'Sieci',c:'var(--net)',icon:'net',
+  desc:'Diagnoza krok po kroku — od warstwy fizycznej, przez DHCP i bramę, aż po DNS.',start:'q_scope',
+  nodes:{
+   q_scope:{type:'decision',title:'Określ zakres problemu',text:'Czy w tym samym miejscu inni użytkownicy też nie mają internetu?',options:[{label:'Tak — wielu użytkowników',to:'a_mass'},{label:'Nie — tylko ten użytkownik',to:'q_ip'},{label:'Nie wiem / nie da się sprawdzić',to:'q_ip'}]},
+   a_mass:{type:'end',kind:'escalate',title:'Awaria masowa',text:'Sprawdź urządzenia sieciowe (switch, router, AP) i status łącza u dostawcy. To problem infrastruktury, nie pojedynczej stacji — eskaluj do zespołu sieciowego, zgłoś do ISP i poinformuj użytkowników.'},
+   q_ip:{type:'decision',title:'Sprawdź adres IP',text:'Wykonaj <code>ipconfig /all</code>. Jaki adres IPv4 ma karta?',options:[{label:'Poprawny adres (np. 192.168.x.x)',to:'q_gw'},{label:'169.254.x.x (APIPA)',to:'a_dhcp'},{label:'Brak adresu / „media disconnected"',to:'s_phys'}]},
+   a_dhcp:{type:'step',title:'Problem z DHCP',text:'APIPA oznacza, że karta nie dostała adresu z serwera DHCP. Odnów dzierżawę:',cmds:[['ipconfig /release','zwolnij obecny adres'],['ipconfig /renew','pobierz nowy z DHCP']],next:'q_dhcp_ok'},
+   q_dhcp_ok:{type:'decision',title:'Czy karta dostała adres?',text:'Po odnowieniu sprawdź ponownie ipconfig.',options:[{label:'Tak, jest poprawny adres',to:'q_gw'},{label:'Nadal 169.254.x.x',to:'a_dhcp_esc'}]},
+   a_dhcp_esc:{type:'end',kind:'escalate',title:'Serwer DHCP nie odpowiada',text:'Sprawdź kabel/port i czy inni w tej sieci dostają adresy. Jeśli problem się utrzymuje — możliwe wyczerpanie puli adresów lub awaria serwera/scope DHCP. Eskaluj do sieciowców.'},
+   s_phys:{type:'step',title:'Sprawdź warstwę fizyczną',text:'Brak adresu i „media disconnected" wskazują na brak połączenia fizycznego.',list:['Kabel wpięty z obu stron? Czy świeci dioda link na karcie/porcie?','Spróbuj inny kabel oraz inny port w gnieździe/switchu','Wi-Fi: czy komputer jest połączony z właściwą siecią i ma sygnał?','Wyłącz i włącz kartę sieciową (Menedżer urządzeń lub ustawienia sieci)'],next:'q_phys_ok'},
+   q_phys_ok:{type:'decision',title:'Czy jest połączenie (link)?',text:'Po sprawdzeniu fizycznym — czy karta widzi sieć?',options:[{label:'Tak, jest link',to:'q_ip'},{label:'Nie, nadal brak',to:'a_phys_esc'}]},
+   a_phys_esc:{type:'end',kind:'escalate',title:'Uszkodzenie sprzętu lub okablowania',text:'Brak linku mimo wymiany kabla i portu — podejrzenie uszkodzonej karty sieciowej, gniazda lub okablowania w budynku. Zgłoś do serwisu sprzętu / zespołu sieciowego.'},
+   q_gw:{type:'decision',title:'Test bramy domyślnej',text:'Wykonaj <code>ping</code> bramy domyślnej (adres z ipconfig, zwykle .1). Odpowiada?',options:[{label:'Tak, brama odpowiada',to:'q_inet'},{label:'Nie odpowiada',to:'a_gw_esc'}]},
+   a_gw_esc:{type:'end',kind:'escalate',title:'Problem w sieci lokalnej',text:'Host ma adres IP, ale nie widzi bramy. Przyczyna leży w sieci lokalnej: switch, router, zła konfiguracja VLAN lub zapora. Eskaluj do zespołu sieciowego.'},
+   q_inet:{type:'decision',title:'Test internetu i DNS',text:'Wykonaj <code>ping 8.8.8.8</code> oraz <code>ping example.com</code>. Co działa?',options:[{label:'Adres IP działa, ale nazwy NIE',to:'a_dns'},{label:'Ani IP, ani nazwy nie działają',to:'a_inet_esc'},{label:'Oba pingi działają',to:'a_app'}]},
+   a_dns:{type:'step',title:'Problem z DNS',text:'Łączność jest, zawodzi rozwiązywanie nazw. Spróbuj:',cmds:[['ipconfig /flushdns','wyczyść cache DNS'],['nslookup example.com 8.8.8.8','test na innym serwerze DNS']],list:['Sprawdź serwer DNS ustawiony na karcie (powinien być firmowy/router)','Sprawdź plik hosts: C:\\Windows\\System32\\drivers\\etc\\hosts (czy nie ma błędnych wpisów)'],next:'q_dns_ok'},
+   q_dns_ok:{type:'decision',title:'Czy nazwy już działają?',options:[{label:'Tak',to:'a_dns_res'},{label:'Nie',to:'a_dns_esc'}]},
+   a_dns_res:{type:'end',kind:'resolved',title:'Rozwiązane — był to DNS',text:'Po wyczyszczeniu cache / poprawie serwera DNS rozwiązywanie nazw działa. Udokumentuj w zgłoszeniu, co było przyczyną.'},
+   a_dns_esc:{type:'end',kind:'escalate',title:'Problem z serwerem DNS',text:'Mimo poprawnej łączności nazwy nadal się nie rozwiązują — możliwa awaria serwera DNS lub reguła zapory. Eskaluj do zespołu sieciowego/serwerowego.'},
+   a_inet_esc:{type:'end',kind:'escalate',title:'Brak trasy do internetu',text:'Brama odpowiada, ale ruch nie wychodzi na zewnątrz. Przyczyna: routing, NAT, zapora lub awaria łącza ISP. Eskaluj do sieciowców.'},
+   a_app:{type:'end',kind:'info',title:'Sieć działa — sprawdź aplikację',text:'Łączność i DNS są poprawne, więc problem leży po stronie aplikacji/przeglądarki. Sprawdź ustawienia proxy, wyczyść cache przeglądarki, sprawdź datę/czas (błędy certyfikatów) i czy konkretna strona nie jest blokowana.'},
+  }},
+
+ {id:'printer',title:'Drukarka nie drukuje',cat:'Sprzęt',c:'var(--hw)',icon:'hw',
+  desc:'Od kolejki wydruku i sterownika po drukarkę sieciową i materiały eksploatacyjne.',start:'q_scope',
+  nodes:{
+   q_scope:{type:'decision',title:'Określ zakres',text:'Czy problem dotyczy też innych osób korzystających z tej drukarki?',options:[{label:'Tak (drukarka sieciowa/współdzielona)',to:'s_net'},{label:'Nie, tylko ten użytkownik',to:'q_queue'}]},
+   s_net:{type:'step',title:'Sprawdź samą drukarkę i sieć',text:'Skoro dotyczy wielu osób — zacznij od urządzenia i łączności.',list:['Czy drukarka jest włączona, online i bez błędu na panelu?','Czy jest papier i toner/tusz? Brak zaciętego arkusza?','Pingnij adres IP drukarki, by potwierdzić łączność','Sprawdź kolejkę i status na serwerze wydruku','Zrestartuj drukarkę (wyłącz na ~30 s)'],next:'q_net_ok'},
+   q_net_ok:{type:'decision',title:'Wróciła do pracy?',options:[{label:'Tak',to:'a_net_res'},{label:'Nie',to:'a_net_esc'}]},
+   a_net_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka wróciła do pracy. Udokumentuj przyczynę (np. offline po awarii zasilania, zacięcie).'},
+   a_net_esc:{type:'end',kind:'escalate',title:'Eskaluj — drukarka/serwer wydruku',text:'Problem po stronie urządzenia lub serwera wydruku dotyczący wielu osób. Eskaluj do administratora serwera wydruku / serwisu drukarek.'},
+   q_queue:{type:'decision',title:'Co dzieje się przy drukowaniu?',text:'Wyślij dokument i obserwuj kolejkę wydruku.',options:[{label:'Zadania utykają / „błąd"',to:'s_spooler'},{label:'Drukarka jest „offline" w Windows',to:'s_offline'},{label:'Drukarki nie ma na liście',to:'s_add'},{label:'Drukuje, ale źle (puste/smugi)',to:'a_consum'}]},
+   s_spooler:{type:'step',title:'Zresetuj bufor wydruku (spooler)',text:'Zawieszone zadania blokują kolejkę. Zatrzymaj usługę, wyczyść kolejkę, uruchom ponownie:',cmds:[['net stop spooler','zatrzymaj bufor wydruku'],['del /Q /F %systemroot%\\System32\\spool\\PRINTERS\\*','wyczyść zadania'],['net start spooler','uruchom ponownie']],next:'q_spool_ok'},
+   q_spool_ok:{type:'decision',title:'Pomogło?',options:[{label:'Tak, drukuje',to:'a_spool_res'},{label:'Nie',to:'s_driver'}]},
+   a_spool_res:{type:'end',kind:'resolved',title:'Rozwiązane — zawieszona kolejka',text:'Restart spoolera i wyczyszczenie kolejki rozwiązały problem. Jeśli się powtarza, sprawdź sterownik lub konkretny dokument.'},
+   s_offline:{type:'step',title:'Przywróć drukarkę online',text:'Status „offline" w Windows często da się cofnąć:',list:['Ustawienia → Drukarki → otwórz kolejkę → odznacz „Użyj drukarki w trybie offline"','Zrestartuj drukarkę i poczekaj, aż się połączy','Drukarka sieciowa: pingnij jej IP; jeśli IP się zmieniło, dodaj ją ponownie','Drukarka USB: sprawdź kabel i port'],next:'q_off_ok'},
+   q_off_ok:{type:'decision',title:'Jest online i drukuje?',options:[{label:'Tak',to:'a_off_res'},{label:'Nie',to:'s_driver'}]},
+   a_off_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka wróciła do trybu online. Udokumentuj przyczynę (np. zmiana IP, uśpienie).'},
+   s_add:{type:'step',title:'Dodaj drukarkę',text:'Brak drukarki na liście — dodaj ją ponownie.',list:['Ustawienia → Drukarki i skanery → Dodaj urządzenie','Sieciowa: dodaj po nazwie \\\\serwer\\drukarka lub po adresie IP','Zainstaluj właściwy sterownik (ze strony producenta lub z serwera wydruku)','Sprawdź uprawnienia do drukarki (GPO / grupa)'],next:'q_add_ok'},
+   q_add_ok:{type:'decision',title:'Udało się dodać i wydrukować?',options:[{label:'Tak',to:'a_add_res'},{label:'Nie',to:'a_driver_esc'}]},
+   a_add_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka dodana i działa. Udokumentuj, jeśli zniknęła przez GPO/profil.'},
+   s_driver:{type:'step',title:'Przeinstaluj sterownik',text:'Najczęstsza twarda przyczyna — uszkodzony lub niewłaściwy sterownik.',list:['Usuń drukarkę oraz jej sterownik (Ustawienia + Zarządzanie drukowaniem)','Pobierz właściwy sterownik dla modelu i wersji Windows ze strony producenta','Dodaj drukarkę ponownie i wydrukuj stronę testową'],next:'q_drv_ok'},
+   q_drv_ok:{type:'decision',title:'Drukuje po reinstalacji?',options:[{label:'Tak',to:'a_drv_res'},{label:'Nie',to:'a_driver_esc'}]},
+   a_drv_res:{type:'end',kind:'resolved',title:'Rozwiązane — sterownik',text:'Przeinstalowanie sterownika rozwiązało problem. Zanotuj wersję sterownika w zgłoszeniu.'},
+   a_driver_esc:{type:'end',kind:'escalate',title:'Eskaluj',text:'Mimo reinstalacji sterownika i sprawdzenia kolejki drukarka nie działa. Eskaluj do wyższego poziomu / serwisu (możliwa usterka sprzętowa lub konfiguracja serwera wydruku).'},
+   a_consum:{type:'end',kind:'info',title:'Materiały eksploatacyjne / serwis',text:'Drukuje, ale jakość jest zła (puste strony, smugi, blaknięcie) — to materiały lub mechanika: toner/tusz, bęben, głowica. Wymień materiał eksploatacyjny lub zgłoś do serwisu; to nie problem konfiguracji.'},
+  }},
+
+ {id:'account',title:'Konto zablokowane / reset hasła',cat:'Tożsamość',c:'var(--ad)',icon:'ad',
+  desc:'Bezpieczna obsługa blokad, resetów i odrzucanych logowań — z weryfikacją tożsamości.',start:'q_verify',
+  nodes:{
+   q_verify:{type:'decision',title:'Najpierw zweryfikuj tożsamość',text:'Zanim cokolwiek zmienisz na koncie — potwierdź tożsamość zgłaszającego zgodnie z procedurą firmy (np. dane kadrowe, callback, manager). Czy tożsamość potwierdzona?',options:[{label:'Tak, potwierdzona',to:'q_type'},{label:'Nie / wątpliwości',to:'a_noverify'}]},
+   a_noverify:{type:'end',kind:'escalate',title:'Nie wykonuj zmian',text:'Bez potwierdzonej tożsamości nie odblokowuj konta ani nie resetuj hasła — to wektor inżynierii społecznej. Postępuj zgodnie z procedurą weryfikacji lub eskaluj do przełożonego/bezpieczeństwa.'},
+   q_type:{type:'decision',title:'Czego dotyczy zgłoszenie?',options:[{label:'Konto zablokowane (za dużo prób)',to:'s_unlock'},{label:'Zapomniane hasło / prośba o reset',to:'s_reset'},{label:'Hasło wygasło',to:'s_expired'},{label:'Logowanie odrzucane mimo dobrego hasła',to:'q_block'}]},
+   s_unlock:{type:'step',title:'Odblokuj konto i znajdź przyczynę',text:'Odblokuj konto i ustal, co je blokowało, żeby się nie powtórzyło.',list:['AD: Unlock-ADAccount jan.kowalski (lub dsa.msc → konto → Odblokuj)','Entra ID: portal → Użytkownik → odblokuj / wymuś reset','Częste źródło blokad: stare hasło zapisane w telefonie, zmapowanych dyskach, aktywnych sesjach lub aplikacjach'],next:'q_unlock_ok'},
+   q_unlock_ok:{type:'decision',title:'Logowanie działa?',options:[{label:'Tak',to:'a_unlock_res'},{label:'Nie / blokuje się ponownie',to:'s_reset'}]},
+   a_unlock_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Konto odblokowane. Poinformuj użytkownika o źródle blokady (np. stare hasło na telefonie) i poproś o aktualizację zapisanych haseł.'},
+   s_reset:{type:'step',title:'Zresetuj hasło bezpiecznie',text:'Przy potwierdzonej tożsamości zresetuj hasło.',list:['AD: Set-ADAccountPassword -Reset + wymuszenie zmiany przy następnym logowaniu','Entra ID/M365: reset w portalu lub skieruj usera do SSPR (samodzielny reset)','Przekaż hasło tymczasowe bezpiecznym kanałem (nie zwykłym mailem)','Zaproponuj rejestrację/odświeżenie MFA'],next:'a_reset_res'},
+   a_reset_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Hasło zresetowane z wymuszeniem zmiany przy logowaniu. Udokumentuj w zgłoszeniu i zamknij po potwierdzeniu przez użytkownika.'},
+   s_expired:{type:'step',title:'Hasło wygasło',text:'Poprowadź użytkownika przez zmianę.',list:['Na stacji w domenie: Ctrl+Alt+Del → Zmień hasło','Zdalnie/M365: zmiana przez portal konta lub po reset przez helpdesk','Przypomnij o polityce złożoności i o aktualizacji haseł w aplikacjach mobilnych'],next:'a_exp_res'},
+   a_exp_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Użytkownik ustawił nowe hasło. Przypomnij, by zaktualizował je tam, gdzie było zapisane (poczta na telefonie, Wi-Fi enterprise).'},
+   q_block:{type:'decision',title:'Gdzie logowanie jest odrzucane?',options:[{label:'Aplikacja chmurowa / M365',to:'a_ca'},{label:'Komputer w domenie (lokalnie)',to:'a_trust'},{label:'Dopiero po zmianie hasła',to:'a_cached'}]},
+   a_ca:{type:'end',kind:'info',title:'Sprawdź Conditional Access / MFA',text:'Hasło dobre, a logowanie odrzucane w chmurze — sprawdź dzienniki logowania (sign-in logs) w Entra ID: powód blokady, lokalizacja, stan urządzenia (compliant?), wymóg MFA. Często to polityka Conditional Access lub nieukończona rejestracja MFA. Skoryguj lub eskaluj do administratora tożsamości.'},
+   a_trust:{type:'end',kind:'escalate',title:'Relacja zaufania komputera',text:'Komunikat typu „trust relationship failed" oznacza zerwane konto komputera w domenie. Rozwiązanie: ponowne dołączenie do domeny lub Reset-ComputerMachinePassword. Jeśli brak uprawnień — eskaluj.'},
+   a_cached:{type:'end',kind:'info',title:'Stare hasło w pamięci podręcznej',text:'Po zmianie hasła logowanie zawodzi tam, gdzie zapisane było stare: profil poczty, zmapowane dyski, Wi-Fi enterprise, Menedżer poświadczeń, aktywne sesje. Zaktualizuj zapisane hasła i wyczyść poświadczenia (Panel sterowania → Menedżer poświadczeń).'},
+  }},
+
+ {id:'slowpc',title:'Komputer działa wolno',cat:'Windows',c:'var(--win)',icon:'win',
+  desc:'Lokalizacja wąskiego gardła (CPU/RAM/dysk) i typowe przyczyny spowolnień.',start:'q_when',
+  nodes:{
+   q_when:{type:'decision',title:'Kiedy jest wolno?',options:[{label:'Ogólnie / cały czas',to:'q_res'},{label:'Głównie przy starcie systemu',to:'s_startup'},{label:'Tylko konkretna aplikacja',to:'s_app'},{label:'Tylko przy pracy z zasobami sieciowymi',to:'a_net'}]},
+   s_startup:{type:'step',title:'Wolny rozruch',text:'Najczęściej winne są programy startowe i opóźnione usługi.',list:['Menedżer zadań → Uruchamianie → wyłącz zbędne pozycje o dużym wpływie','Sprawdź, czy dysk to SSD czy HDD (HDD bardzo wydłuża start)','Zweryfikuj, czy nie trwa instalacja aktualizacji przy każdym starcie'],next:'q_start_ok'},
+   q_start_ok:{type:'decision',title:'Start przyspieszył?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'s_basic'}]},
+   s_app:{type:'step',title:'Wolna konkretna aplikacja',text:'Zawęź problem do tej aplikacji.',list:['Menedżer zadań → sprawdź zużycie CPU/RAM/dysku przez tę aplikację','Zaktualizuj lub przeinstaluj aplikację','Wyczyść jej cache / sprawdź uszkodzony profil aplikacji','Sprawdź, czy problem występuje na innym koncie/komputerze'],next:'q_app_ok'},
+   q_app_ok:{type:'decision',title:'Aplikacja działa płynnie?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'a_app_esc'}]},
+   a_app_esc:{type:'end',kind:'escalate',title:'Eskaluj — aplikacja',text:'Aplikacja nadal działa wolno mimo aktualizacji i czystego profilu. Eskaluj do zespołu wspierającego tę aplikację z opisem zużycia zasobów i kroków, które wykonałeś.'},
+   q_res:{type:'decision',title:'Co jest obciążone? (Menedżer zadań → Wydajność/Procesy)',options:[{label:'CPU blisko 100%',to:'a_cpu'},{label:'Pamięć (RAM) blisko 100%',to:'a_ram'},{label:'Dysk 100%',to:'a_disk'},{label:'Nic się nie wyróżnia',to:'s_basic'}]},
+   a_cpu:{type:'step',title:'Wysokie obciążenie CPU',text:'Znajdź i obsłuż proces winny obciążenia.',list:['Posortuj procesy po CPU; sprawdź nazwę procesu','Czy to skanowanie antywirusa / instalacja aktualizacji? (poczekaj)','Podejrzany/nieznany proces → sprawdź pod kątem malware (skan Defender)','Sprawdź temperatury — przegrzanie powoduje throttling (czyszczenie, wentylacja)'],next:'q_generic_ok'},
+   a_ram:{type:'step',title:'Brak wolnej pamięci RAM',text:'Zredukuj zużycie pamięci.',list:['Zamknij zbędne aplikacje i karty przeglądarki','Sprawdź procesy z największym zużyciem RAM (możliwy wyciek pamięci → restart aplikacji)','Jeśli komputer ma mało RAM jak na zadania — rozważ rozbudowę pamięci'],next:'q_generic_ok'},
+   a_disk:{type:'step',title:'Dysk obciążony w 100%',text:'Ustal przyczynę i stan dysku.',list:['Sprawdź proces obciążający dysk (często Windows Update, SysMain, indeksowanie)','Sprawdź wolne miejsce na C: (mało miejsca = spowolnienia)','Sprawdź stan dysku (SMART / narzędzie producenta) — HDD blisko awarii bywa bardzo wolny','HDD: rozważ defragmentację; SSD: upewnij się, że TRIM działa'],next:'q_disk_ok'},
+   q_disk_ok:{type:'decision',title:'Po sprawdzeniu — lepiej?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie, a SMART pokazuje problem',to:'a_disk_esc'},{label:'Nie, SMART OK',to:'s_basic'}]},
+   a_disk_esc:{type:'end',kind:'escalate',title:'Dysk do wymiany',text:'Błędy SMART / stale 100% mimo braku obciążenia wskazują na umierający dysk. Zabezpiecz dane i zgłoś wymianę dysku do serwisu.'},
+   s_basic:{type:'step',title:'Podstawowe czyszczenie',text:'Gdy nic się nie wyróżnia, przejdź standardową listę.',list:['Restart komputera (jeśli długo nie był wyłączany)','Wyczyść pliki tymczasowe i Kosz; zwolnij miejsce na C:','Pełne skanowanie antywirusowe (Defender)','Zainstaluj zaległe aktualizacje Windows i sterowników','Sprawdź zaplanowane skanowania/zadania w tle'],next:'q_generic_ok'},
+   q_generic_ok:{type:'decision',title:'Komputer działa lepiej?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'a_generic_esc'}]},
+   a_generic_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Wydajność wróciła do normy. Udokumentuj przyczynę i wykonane kroki w zgłoszeniu.'},
+   a_generic_esc:{type:'end',kind:'escalate',title:'Eskaluj',text:'Spowolnienie utrzymuje się mimo diagnozy zasobów i czyszczenia. Eskaluj wyżej z notatką o obciążeniu (CPU/RAM/dysk) i wykonanych krokach — możliwa głębsza przyczyna sprzętowa lub systemowa.'},
+   a_net:{type:'end',kind:'info',title:'Wolno tylko z zasobami sieciowymi',text:'Jeśli spowolnienie dotyczy tylko dysków sieciowych/aplikacji serwerowych, to nie problem wydajności stacji — przejdź do diagnozy sieci/serwera plików (patrz scenariusz „Brak dostępu do internetu" oraz sprawdź obciążenie serwera i łącza).'},
+  }},
+];
+const scenList=document.getElementById('scenList'),scenWalk=document.getElementById('scenWalk');
+let curScen=null,curNode=null,scenHist=[];
+function renderScenList(){
+  scenList.innerHTML='';scenList.style.display='grid';scenWalk.style.display='none';
+  SCENARIOS.forEach(s=>{
+    const card=document.createElement('div');card.className='scen-card';card.style.setProperty('--c',s.c);
+    card.innerHTML=`<div class="sc-top"><div class="ci">${ICONS[s.icon]}</div><div><h3>${s.title}</h3><div class="cat">${s.cat}</div></div></div>
+      <div class="sc-desc">${s.desc}</div><div class="sc-go">Rozpocznij diagnozę →</div>`;
+    card.onclick=()=>openScen(s.id);
+    scenList.appendChild(card);
+  });
+}
+function openScen(id){curScen=SCENARIOS.find(s=>s.id===id);curNode=curScen.start;scenHist=[curNode];renderWalker();}
+function closeScen(){renderScenList();window.scrollTo({top:0,behavior:'smooth'});}
+function renderWalker(){
+  const s=curScen,n=s.nodes[curNode];
+  scenList.style.display='none';scenWalk.style.display='block';
+  let h=`<div class="walk-top"><button class="btn" id="scenAll">‹ Wszystkie scenariusze</button>${scenHist.length>1?'<button class="btn" id="scenBack">Krok wstecz</button>':''}</div>`;
+  h+=`<div class="walk-head" style="--c:${s.c}"><div class="ci">${ICONS[s.icon]}</div><div><h3>${s.title}</h3><div class="cat">${s.cat} · diagnoza krok po kroku</div></div></div>`;
+  h+=`<div class="crumbs">`+scenHist.map((id,i)=>`<span class="crumb${i===scenHist.length-1?' on':''}">${(s.nodes[id].title||'…')}</span>`).join('<span class="crsep">›</span>')+`</div>`;
+  h+=`<div class="node node-${n.type}${n.kind?' end-'+n.kind:''}" style="--c:${s.c}">`;
+  if(n.title)h+=`<div class="node-title">${n.title}</div>`;
+  if(n.text)h+=`<div class="node-text">${n.text}</div>`;
+  if(n.list)h+=`<ul class="node-list">`+n.list.map(x=>`<li>${x}</li>`).join('')+`</ul>`;
+  if(n.cmds)h+=`<div class="cmds">`+n.cmds.map(c=>`<div class="cmd"><code>${c[0].replace(/</g,'&lt;')}</code><span>${c[1]}</span></div>`).join('')+`</div>`;
+  if(n.type==='decision'){h+=`<div class="opts">`+n.options.map(o=>`<button class="opt-btn" data-to="${o.to}">${o.label}</button>`).join('')+`</div>`;}
+  else if(n.type==='step'){h+=`<div class="opts"><button class="opt-btn primary" data-to="${n.next}">Dalej ›</button></div>`;}
+  else if(n.type==='end'){const lbl={resolved:'✓ Rozwiązane',escalate:'⚠ Eskaluj',info:'ℹ Wskazówka'}[n.kind];h+=`<div class="end-badge end-${n.kind}">${lbl}</div><div class="opts"><button class="opt-btn primary" id="scenRestart">↺ Zacznij scenariusz od nowa</button></div>`;}
+  h+=`</div>`;
+  scenWalk.innerHTML=h;
+  scenWalk.querySelectorAll('.opt-btn[data-to]').forEach(b=>b.onclick=()=>{curNode=b.dataset.to;scenHist.push(curNode);renderWalker();window.scrollTo({top:0,behavior:'smooth'});});
+  const all=document.getElementById('scenAll');if(all)all.onclick=closeScen;
+  const back=document.getElementById('scenBack');if(back)back.onclick=()=>{scenHist.pop();curNode=scenHist[scenHist.length-1];renderWalker();};
+  const rs=document.getElementById('scenRestart');if(rs)rs.onclick=()=>{curNode=s.start;scenHist=[s.start];renderWalker();window.scrollTo({top:0,behavior:'smooth'});};
+}
+
+/* ============ INIT ============ */
+buildCmdPills();renderCmd();renderScenList();
+
+</script>
+</body>
+</html>
