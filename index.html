@@ -283,7 +283,17 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
   </div>
 
   <div id="tab-scenarios" class="tabpane">
+    <div id="scenFilters">
+      <div class="controls">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="scenSearch" type="text" placeholder="Szukaj scenariusza… (np. hasło, drukarka, vpn, phishing)">
+        </div>
+      </div>
+      <div class="pills" id="scenPills"></div>
+    </div>
     <div id="scenList" class="scen-grid"></div>
+    <div class="empty" id="scenEmpty" style="display:none">Brak wyników. Wyczyść wyszukiwanie lub wybierz inną kategorię.</div>
     <div id="scenWalk" style="display:none"></div>
   </div>
 
@@ -1045,20 +1055,45 @@ document.getElementById('cmdSearch').addEventListener('input',e=>{cmdQ=e.target.
 /* SCENARIOS — dane wczytywane z zewnętrznego pliku scenarios.js (edytuj tam, aby dodawać scenariusze) */
 const scenList=document.getElementById('scenList'),scenWalk=document.getElementById('scenWalk');
 let curScen=null,curNode=null,scenHist=[];
+let scenCat='all',scenQ='';
+const SCEN_CAT_ORDER=['Tożsamość','Poczta','Microsoft 365','Oprogramowanie','Sprzęt','Sieci','Mobilność','Bezpieczeństwo','Windows','Endpoint'];
+function scenCats(){
+  const present=[...new Set(SCENARIOS.map(s=>s.cat))];
+  const ordered=SCEN_CAT_ORDER.filter(c=>present.includes(c));
+  present.forEach(c=>{if(!ordered.includes(c))ordered.push(c);});
+  return ordered;
+}
+function scenCatColor(cat){const s=SCENARIOS.find(x=>x.cat===cat);return s?s.c:'var(--accent)';}
+function buildScenPills(){
+  const p=document.getElementById('scenPills');p.innerHTML='';
+  const mk=(id,label,col,count)=>{const b=document.createElement('button');b.className='pill'+(scenCat===id?' on':'');b.dataset.scat=id;b.innerHTML=(col?`<span class="d" style="background:${col}"></span>`:'')+label+(count!=null?` <span style="opacity:.5">${count}</span>`:'');b.onclick=()=>{scenCat=id;renderScenList();};return b;};
+  p.appendChild(mk('all','Wszystkie',null,SCENARIOS.length));
+  scenCats().forEach(c=>p.appendChild(mk(c,c,scenCatColor(c),SCENARIOS.filter(s=>s.cat===c).length)));
+}
 function renderScenList(){
+  document.getElementById('scenFilters').style.display='';
+  buildScenPills();
   scenList.innerHTML='';scenList.style.display='grid';scenWalk.style.display='none';
-  SCENARIOS.forEach(s=>{
-    const card=document.createElement('div');card.className='scen-card';card.style.setProperty('--c',s.c);
-    card.innerHTML=`<div class="sc-top"><div class="ci">${ICONS[s.icon]}</div><div><h3>${s.title}</h3><div class="cat">${s.cat}</div></div></div>
-      <div class="sc-desc">${s.desc}</div><div class="sc-go">Rozpocznij diagnozę →</div>`;
-    card.onclick=()=>openScen(s.id);
-    scenList.appendChild(card);
+  const list=SCENARIOS.filter(s=>(scenCat==='all'||s.cat===scenCat)&&(!scenQ||(s.title+' '+s.desc+' '+s.cat).toLowerCase().includes(scenQ)));
+  document.getElementById('scenEmpty').style.display=list.length?'none':'block';
+  scenCats().filter(c=>list.some(s=>s.cat===c)).forEach(c=>{
+    const head=document.createElement('div');head.className='cmd-grouphead';head.style.setProperty('--c',scenCatColor(c));head.style.gridColumn='1/-1';
+    head.innerHTML=`${c} <span class="gline"></span>`;scenList.appendChild(head);
+    list.filter(s=>s.cat===c).forEach(s=>{
+      const card=document.createElement('div');card.className='scen-card';card.style.setProperty('--c',s.c);
+      card.innerHTML=`<div class="sc-top"><div class="ci">${ICONS[s.icon]}</div><div><h3>${s.title}</h3><div class="cat">${s.cat}</div></div></div>
+        <div class="sc-desc">${s.desc}</div><div class="sc-go">Rozpocznij diagnozę →</div>`;
+      card.onclick=()=>openScen(s.id);
+      scenList.appendChild(card);
+    });
   });
 }
+document.getElementById('scenSearch').addEventListener('input',e=>{scenQ=e.target.value.trim().toLowerCase();renderScenList();});
 function openScen(id){curScen=SCENARIOS.find(s=>s.id===id);curNode=curScen.start;scenHist=[curNode];renderWalker();}
 function closeScen(){renderScenList();window.scrollTo({top:0,behavior:'smooth'});}
 function renderWalker(){
   const s=curScen,n=s.nodes[curNode];
+  document.getElementById('scenFilters').style.display='none';
   scenList.style.display='none';scenWalk.style.display='block';
   let h=`<div class="walk-top"><button class="btn" id="scenAll">‹ Wszystkie scenariusze</button>${scenHist.length>1?'<button class="btn" id="scenBack">Krok wstecz</button>':''}</div>`;
   h+=`<div class="walk-head" style="--c:${s.c}"><div class="ci">${ICONS[s.icon]}</div><div><h3>${s.title}</h3><div class="cat">${s.cat} · diagnoza krok po kroku</div></div></div>`;
