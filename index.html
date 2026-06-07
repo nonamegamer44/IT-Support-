@@ -252,7 +252,7 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
   <nav class="tabnav">
     <button class="tab active" data-tab="classroom">📚 Classroom <span class="tnum">11</span></button>
     <button class="tab" data-tab="command">⌨️ Command <span class="tnum">89</span></button>
-    <button class="tab" data-tab="scenarios">🧭 Scenarios <span class="tnum">4</span></button>
+    <button class="tab" data-tab="scenarios">🧭 Scenarios <span class="tnum">60</span></button>
   </nav>
 
   <div id="tab-classroom" class="tabpane active">
@@ -301,6 +301,7 @@ footer{text-align:center;color:var(--txt3);font-size:12px;margin-top:34px;}
   </div>
 </div>
 
+<script src="scenarios.js"></script>
 <script>
 const ICON=(p)=>`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const ICONS={
@@ -1041,97 +1042,7 @@ function renderCmd(){
 }
 document.getElementById('cmdSearch').addEventListener('input',e=>{cmdQ=e.target.value.trim().toLowerCase();renderCmd();});
 
-/* ============ SCENARIOS (decision trees) ============ */
-const SCENARIOS=[
- {id:'net',title:'Brak dostępu do internetu',cat:'Sieci',c:'var(--net)',icon:'net',
-  desc:'Diagnoza krok po kroku — od warstwy fizycznej, przez DHCP i bramę, aż po DNS.',start:'q_scope',
-  nodes:{
-   q_scope:{type:'decision',title:'Określ zakres problemu',text:'Czy w tym samym miejscu inni użytkownicy też nie mają internetu?',options:[{label:'Tak — wielu użytkowników',to:'a_mass'},{label:'Nie — tylko ten użytkownik',to:'q_ip'},{label:'Nie wiem / nie da się sprawdzić',to:'q_ip'}]},
-   a_mass:{type:'end',kind:'escalate',title:'Awaria masowa',text:'Sprawdź urządzenia sieciowe (switch, router, AP) i status łącza u dostawcy. To problem infrastruktury, nie pojedynczej stacji — eskaluj do zespołu sieciowego, zgłoś do ISP i poinformuj użytkowników.'},
-   q_ip:{type:'decision',title:'Sprawdź adres IP',text:'Wykonaj <code>ipconfig /all</code>. Jaki adres IPv4 ma karta?',options:[{label:'Poprawny adres (np. 192.168.x.x)',to:'q_gw'},{label:'169.254.x.x (APIPA)',to:'a_dhcp'},{label:'Brak adresu / „media disconnected"',to:'s_phys'}]},
-   a_dhcp:{type:'step',title:'Problem z DHCP',text:'APIPA oznacza, że karta nie dostała adresu z serwera DHCP. Odnów dzierżawę:',cmds:[['ipconfig /release','zwolnij obecny adres'],['ipconfig /renew','pobierz nowy z DHCP']],next:'q_dhcp_ok'},
-   q_dhcp_ok:{type:'decision',title:'Czy karta dostała adres?',text:'Po odnowieniu sprawdź ponownie ipconfig.',options:[{label:'Tak, jest poprawny adres',to:'q_gw'},{label:'Nadal 169.254.x.x',to:'a_dhcp_esc'}]},
-   a_dhcp_esc:{type:'end',kind:'escalate',title:'Serwer DHCP nie odpowiada',text:'Sprawdź kabel/port i czy inni w tej sieci dostają adresy. Jeśli problem się utrzymuje — możliwe wyczerpanie puli adresów lub awaria serwera/scope DHCP. Eskaluj do sieciowców.'},
-   s_phys:{type:'step',title:'Sprawdź warstwę fizyczną',text:'Brak adresu i „media disconnected" wskazują na brak połączenia fizycznego.',list:['Kabel wpięty z obu stron? Czy świeci dioda link na karcie/porcie?','Spróbuj inny kabel oraz inny port w gnieździe/switchu','Wi-Fi: czy komputer jest połączony z właściwą siecią i ma sygnał?','Wyłącz i włącz kartę sieciową (Menedżer urządzeń lub ustawienia sieci)'],next:'q_phys_ok'},
-   q_phys_ok:{type:'decision',title:'Czy jest połączenie (link)?',text:'Po sprawdzeniu fizycznym — czy karta widzi sieć?',options:[{label:'Tak, jest link',to:'q_ip'},{label:'Nie, nadal brak',to:'a_phys_esc'}]},
-   a_phys_esc:{type:'end',kind:'escalate',title:'Uszkodzenie sprzętu lub okablowania',text:'Brak linku mimo wymiany kabla i portu — podejrzenie uszkodzonej karty sieciowej, gniazda lub okablowania w budynku. Zgłoś do serwisu sprzętu / zespołu sieciowego.'},
-   q_gw:{type:'decision',title:'Test bramy domyślnej',text:'Wykonaj <code>ping</code> bramy domyślnej (adres z ipconfig, zwykle .1). Odpowiada?',options:[{label:'Tak, brama odpowiada',to:'q_inet'},{label:'Nie odpowiada',to:'a_gw_esc'}]},
-   a_gw_esc:{type:'end',kind:'escalate',title:'Problem w sieci lokalnej',text:'Host ma adres IP, ale nie widzi bramy. Przyczyna leży w sieci lokalnej: switch, router, zła konfiguracja VLAN lub zapora. Eskaluj do zespołu sieciowego.'},
-   q_inet:{type:'decision',title:'Test internetu i DNS',text:'Wykonaj <code>ping 8.8.8.8</code> oraz <code>ping example.com</code>. Co działa?',options:[{label:'Adres IP działa, ale nazwy NIE',to:'a_dns'},{label:'Ani IP, ani nazwy nie działają',to:'a_inet_esc'},{label:'Oba pingi działają',to:'a_app'}]},
-   a_dns:{type:'step',title:'Problem z DNS',text:'Łączność jest, zawodzi rozwiązywanie nazw. Spróbuj:',cmds:[['ipconfig /flushdns','wyczyść cache DNS'],['nslookup example.com 8.8.8.8','test na innym serwerze DNS']],list:['Sprawdź serwer DNS ustawiony na karcie (powinien być firmowy/router)','Sprawdź plik hosts: C:\\Windows\\System32\\drivers\\etc\\hosts (czy nie ma błędnych wpisów)'],next:'q_dns_ok'},
-   q_dns_ok:{type:'decision',title:'Czy nazwy już działają?',options:[{label:'Tak',to:'a_dns_res'},{label:'Nie',to:'a_dns_esc'}]},
-   a_dns_res:{type:'end',kind:'resolved',title:'Rozwiązane — był to DNS',text:'Po wyczyszczeniu cache / poprawie serwera DNS rozwiązywanie nazw działa. Udokumentuj w zgłoszeniu, co było przyczyną.'},
-   a_dns_esc:{type:'end',kind:'escalate',title:'Problem z serwerem DNS',text:'Mimo poprawnej łączności nazwy nadal się nie rozwiązują — możliwa awaria serwera DNS lub reguła zapory. Eskaluj do zespołu sieciowego/serwerowego.'},
-   a_inet_esc:{type:'end',kind:'escalate',title:'Brak trasy do internetu',text:'Brama odpowiada, ale ruch nie wychodzi na zewnątrz. Przyczyna: routing, NAT, zapora lub awaria łącza ISP. Eskaluj do sieciowców.'},
-   a_app:{type:'end',kind:'info',title:'Sieć działa — sprawdź aplikację',text:'Łączność i DNS są poprawne, więc problem leży po stronie aplikacji/przeglądarki. Sprawdź ustawienia proxy, wyczyść cache przeglądarki, sprawdź datę/czas (błędy certyfikatów) i czy konkretna strona nie jest blokowana.'},
-  }},
-
- {id:'printer',title:'Drukarka nie drukuje',cat:'Sprzęt',c:'var(--hw)',icon:'hw',
-  desc:'Od kolejki wydruku i sterownika po drukarkę sieciową i materiały eksploatacyjne.',start:'q_scope',
-  nodes:{
-   q_scope:{type:'decision',title:'Określ zakres',text:'Czy problem dotyczy też innych osób korzystających z tej drukarki?',options:[{label:'Tak (drukarka sieciowa/współdzielona)',to:'s_net'},{label:'Nie, tylko ten użytkownik',to:'q_queue'}]},
-   s_net:{type:'step',title:'Sprawdź samą drukarkę i sieć',text:'Skoro dotyczy wielu osób — zacznij od urządzenia i łączności.',list:['Czy drukarka jest włączona, online i bez błędu na panelu?','Czy jest papier i toner/tusz? Brak zaciętego arkusza?','Pingnij adres IP drukarki, by potwierdzić łączność','Sprawdź kolejkę i status na serwerze wydruku','Zrestartuj drukarkę (wyłącz na ~30 s)'],next:'q_net_ok'},
-   q_net_ok:{type:'decision',title:'Wróciła do pracy?',options:[{label:'Tak',to:'a_net_res'},{label:'Nie',to:'a_net_esc'}]},
-   a_net_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka wróciła do pracy. Udokumentuj przyczynę (np. offline po awarii zasilania, zacięcie).'},
-   a_net_esc:{type:'end',kind:'escalate',title:'Eskaluj — drukarka/serwer wydruku',text:'Problem po stronie urządzenia lub serwera wydruku dotyczący wielu osób. Eskaluj do administratora serwera wydruku / serwisu drukarek.'},
-   q_queue:{type:'decision',title:'Co dzieje się przy drukowaniu?',text:'Wyślij dokument i obserwuj kolejkę wydruku.',options:[{label:'Zadania utykają / „błąd"',to:'s_spooler'},{label:'Drukarka jest „offline" w Windows',to:'s_offline'},{label:'Drukarki nie ma na liście',to:'s_add'},{label:'Drukuje, ale źle (puste/smugi)',to:'a_consum'}]},
-   s_spooler:{type:'step',title:'Zresetuj bufor wydruku (spooler)',text:'Zawieszone zadania blokują kolejkę. Zatrzymaj usługę, wyczyść kolejkę, uruchom ponownie:',cmds:[['net stop spooler','zatrzymaj bufor wydruku'],['del /Q /F %systemroot%\\System32\\spool\\PRINTERS\\*','wyczyść zadania'],['net start spooler','uruchom ponownie']],next:'q_spool_ok'},
-   q_spool_ok:{type:'decision',title:'Pomogło?',options:[{label:'Tak, drukuje',to:'a_spool_res'},{label:'Nie',to:'s_driver'}]},
-   a_spool_res:{type:'end',kind:'resolved',title:'Rozwiązane — zawieszona kolejka',text:'Restart spoolera i wyczyszczenie kolejki rozwiązały problem. Jeśli się powtarza, sprawdź sterownik lub konkretny dokument.'},
-   s_offline:{type:'step',title:'Przywróć drukarkę online',text:'Status „offline" w Windows często da się cofnąć:',list:['Ustawienia → Drukarki → otwórz kolejkę → odznacz „Użyj drukarki w trybie offline"','Zrestartuj drukarkę i poczekaj, aż się połączy','Drukarka sieciowa: pingnij jej IP; jeśli IP się zmieniło, dodaj ją ponownie','Drukarka USB: sprawdź kabel i port'],next:'q_off_ok'},
-   q_off_ok:{type:'decision',title:'Jest online i drukuje?',options:[{label:'Tak',to:'a_off_res'},{label:'Nie',to:'s_driver'}]},
-   a_off_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka wróciła do trybu online. Udokumentuj przyczynę (np. zmiana IP, uśpienie).'},
-   s_add:{type:'step',title:'Dodaj drukarkę',text:'Brak drukarki na liście — dodaj ją ponownie.',list:['Ustawienia → Drukarki i skanery → Dodaj urządzenie','Sieciowa: dodaj po nazwie \\\\serwer\\drukarka lub po adresie IP','Zainstaluj właściwy sterownik (ze strony producenta lub z serwera wydruku)','Sprawdź uprawnienia do drukarki (GPO / grupa)'],next:'q_add_ok'},
-   q_add_ok:{type:'decision',title:'Udało się dodać i wydrukować?',options:[{label:'Tak',to:'a_add_res'},{label:'Nie',to:'a_driver_esc'}]},
-   a_add_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Drukarka dodana i działa. Udokumentuj, jeśli zniknęła przez GPO/profil.'},
-   s_driver:{type:'step',title:'Przeinstaluj sterownik',text:'Najczęstsza twarda przyczyna — uszkodzony lub niewłaściwy sterownik.',list:['Usuń drukarkę oraz jej sterownik (Ustawienia + Zarządzanie drukowaniem)','Pobierz właściwy sterownik dla modelu i wersji Windows ze strony producenta','Dodaj drukarkę ponownie i wydrukuj stronę testową'],next:'q_drv_ok'},
-   q_drv_ok:{type:'decision',title:'Drukuje po reinstalacji?',options:[{label:'Tak',to:'a_drv_res'},{label:'Nie',to:'a_driver_esc'}]},
-   a_drv_res:{type:'end',kind:'resolved',title:'Rozwiązane — sterownik',text:'Przeinstalowanie sterownika rozwiązało problem. Zanotuj wersję sterownika w zgłoszeniu.'},
-   a_driver_esc:{type:'end',kind:'escalate',title:'Eskaluj',text:'Mimo reinstalacji sterownika i sprawdzenia kolejki drukarka nie działa. Eskaluj do wyższego poziomu / serwisu (możliwa usterka sprzętowa lub konfiguracja serwera wydruku).'},
-   a_consum:{type:'end',kind:'info',title:'Materiały eksploatacyjne / serwis',text:'Drukuje, ale jakość jest zła (puste strony, smugi, blaknięcie) — to materiały lub mechanika: toner/tusz, bęben, głowica. Wymień materiał eksploatacyjny lub zgłoś do serwisu; to nie problem konfiguracji.'},
-  }},
-
- {id:'account',title:'Konto zablokowane / reset hasła',cat:'Tożsamość',c:'var(--ad)',icon:'ad',
-  desc:'Bezpieczna obsługa blokad, resetów i odrzucanych logowań — z weryfikacją tożsamości.',start:'q_verify',
-  nodes:{
-   q_verify:{type:'decision',title:'Najpierw zweryfikuj tożsamość',text:'Zanim cokolwiek zmienisz na koncie — potwierdź tożsamość zgłaszającego zgodnie z procedurą firmy (np. dane kadrowe, callback, manager). Czy tożsamość potwierdzona?',options:[{label:'Tak, potwierdzona',to:'q_type'},{label:'Nie / wątpliwości',to:'a_noverify'}]},
-   a_noverify:{type:'end',kind:'escalate',title:'Nie wykonuj zmian',text:'Bez potwierdzonej tożsamości nie odblokowuj konta ani nie resetuj hasła — to wektor inżynierii społecznej. Postępuj zgodnie z procedurą weryfikacji lub eskaluj do przełożonego/bezpieczeństwa.'},
-   q_type:{type:'decision',title:'Czego dotyczy zgłoszenie?',options:[{label:'Konto zablokowane (za dużo prób)',to:'s_unlock'},{label:'Zapomniane hasło / prośba o reset',to:'s_reset'},{label:'Hasło wygasło',to:'s_expired'},{label:'Logowanie odrzucane mimo dobrego hasła',to:'q_block'}]},
-   s_unlock:{type:'step',title:'Odblokuj konto i znajdź przyczynę',text:'Odblokuj konto i ustal, co je blokowało, żeby się nie powtórzyło.',list:['AD: Unlock-ADAccount jan.kowalski (lub dsa.msc → konto → Odblokuj)','Entra ID: portal → Użytkownik → odblokuj / wymuś reset','Częste źródło blokad: stare hasło zapisane w telefonie, zmapowanych dyskach, aktywnych sesjach lub aplikacjach'],next:'q_unlock_ok'},
-   q_unlock_ok:{type:'decision',title:'Logowanie działa?',options:[{label:'Tak',to:'a_unlock_res'},{label:'Nie / blokuje się ponownie',to:'s_reset'}]},
-   a_unlock_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Konto odblokowane. Poinformuj użytkownika o źródle blokady (np. stare hasło na telefonie) i poproś o aktualizację zapisanych haseł.'},
-   s_reset:{type:'step',title:'Zresetuj hasło bezpiecznie',text:'Przy potwierdzonej tożsamości zresetuj hasło.',list:['AD: Set-ADAccountPassword -Reset + wymuszenie zmiany przy następnym logowaniu','Entra ID/M365: reset w portalu lub skieruj usera do SSPR (samodzielny reset)','Przekaż hasło tymczasowe bezpiecznym kanałem (nie zwykłym mailem)','Zaproponuj rejestrację/odświeżenie MFA'],next:'a_reset_res'},
-   a_reset_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Hasło zresetowane z wymuszeniem zmiany przy logowaniu. Udokumentuj w zgłoszeniu i zamknij po potwierdzeniu przez użytkownika.'},
-   s_expired:{type:'step',title:'Hasło wygasło',text:'Poprowadź użytkownika przez zmianę.',list:['Na stacji w domenie: Ctrl+Alt+Del → Zmień hasło','Zdalnie/M365: zmiana przez portal konta lub po reset przez helpdesk','Przypomnij o polityce złożoności i o aktualizacji haseł w aplikacjach mobilnych'],next:'a_exp_res'},
-   a_exp_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Użytkownik ustawił nowe hasło. Przypomnij, by zaktualizował je tam, gdzie było zapisane (poczta na telefonie, Wi-Fi enterprise).'},
-   q_block:{type:'decision',title:'Gdzie logowanie jest odrzucane?',options:[{label:'Aplikacja chmurowa / M365',to:'a_ca'},{label:'Komputer w domenie (lokalnie)',to:'a_trust'},{label:'Dopiero po zmianie hasła',to:'a_cached'}]},
-   a_ca:{type:'end',kind:'info',title:'Sprawdź Conditional Access / MFA',text:'Hasło dobre, a logowanie odrzucane w chmurze — sprawdź dzienniki logowania (sign-in logs) w Entra ID: powód blokady, lokalizacja, stan urządzenia (compliant?), wymóg MFA. Często to polityka Conditional Access lub nieukończona rejestracja MFA. Skoryguj lub eskaluj do administratora tożsamości.'},
-   a_trust:{type:'end',kind:'escalate',title:'Relacja zaufania komputera',text:'Komunikat typu „trust relationship failed" oznacza zerwane konto komputera w domenie. Rozwiązanie: ponowne dołączenie do domeny lub Reset-ComputerMachinePassword. Jeśli brak uprawnień — eskaluj.'},
-   a_cached:{type:'end',kind:'info',title:'Stare hasło w pamięci podręcznej',text:'Po zmianie hasła logowanie zawodzi tam, gdzie zapisane było stare: profil poczty, zmapowane dyski, Wi-Fi enterprise, Menedżer poświadczeń, aktywne sesje. Zaktualizuj zapisane hasła i wyczyść poświadczenia (Panel sterowania → Menedżer poświadczeń).'},
-  }},
-
- {id:'slowpc',title:'Komputer działa wolno',cat:'Windows',c:'var(--win)',icon:'win',
-  desc:'Lokalizacja wąskiego gardła (CPU/RAM/dysk) i typowe przyczyny spowolnień.',start:'q_when',
-  nodes:{
-   q_when:{type:'decision',title:'Kiedy jest wolno?',options:[{label:'Ogólnie / cały czas',to:'q_res'},{label:'Głównie przy starcie systemu',to:'s_startup'},{label:'Tylko konkretna aplikacja',to:'s_app'},{label:'Tylko przy pracy z zasobami sieciowymi',to:'a_net'}]},
-   s_startup:{type:'step',title:'Wolny rozruch',text:'Najczęściej winne są programy startowe i opóźnione usługi.',list:['Menedżer zadań → Uruchamianie → wyłącz zbędne pozycje o dużym wpływie','Sprawdź, czy dysk to SSD czy HDD (HDD bardzo wydłuża start)','Zweryfikuj, czy nie trwa instalacja aktualizacji przy każdym starcie'],next:'q_start_ok'},
-   q_start_ok:{type:'decision',title:'Start przyspieszył?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'s_basic'}]},
-   s_app:{type:'step',title:'Wolna konkretna aplikacja',text:'Zawęź problem do tej aplikacji.',list:['Menedżer zadań → sprawdź zużycie CPU/RAM/dysku przez tę aplikację','Zaktualizuj lub przeinstaluj aplikację','Wyczyść jej cache / sprawdź uszkodzony profil aplikacji','Sprawdź, czy problem występuje na innym koncie/komputerze'],next:'q_app_ok'},
-   q_app_ok:{type:'decision',title:'Aplikacja działa płynnie?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'a_app_esc'}]},
-   a_app_esc:{type:'end',kind:'escalate',title:'Eskaluj — aplikacja',text:'Aplikacja nadal działa wolno mimo aktualizacji i czystego profilu. Eskaluj do zespołu wspierającego tę aplikację z opisem zużycia zasobów i kroków, które wykonałeś.'},
-   q_res:{type:'decision',title:'Co jest obciążone? (Menedżer zadań → Wydajność/Procesy)',options:[{label:'CPU blisko 100%',to:'a_cpu'},{label:'Pamięć (RAM) blisko 100%',to:'a_ram'},{label:'Dysk 100%',to:'a_disk'},{label:'Nic się nie wyróżnia',to:'s_basic'}]},
-   a_cpu:{type:'step',title:'Wysokie obciążenie CPU',text:'Znajdź i obsłuż proces winny obciążenia.',list:['Posortuj procesy po CPU; sprawdź nazwę procesu','Czy to skanowanie antywirusa / instalacja aktualizacji? (poczekaj)','Podejrzany/nieznany proces → sprawdź pod kątem malware (skan Defender)','Sprawdź temperatury — przegrzanie powoduje throttling (czyszczenie, wentylacja)'],next:'q_generic_ok'},
-   a_ram:{type:'step',title:'Brak wolnej pamięci RAM',text:'Zredukuj zużycie pamięci.',list:['Zamknij zbędne aplikacje i karty przeglądarki','Sprawdź procesy z największym zużyciem RAM (możliwy wyciek pamięci → restart aplikacji)','Jeśli komputer ma mało RAM jak na zadania — rozważ rozbudowę pamięci'],next:'q_generic_ok'},
-   a_disk:{type:'step',title:'Dysk obciążony w 100%',text:'Ustal przyczynę i stan dysku.',list:['Sprawdź proces obciążający dysk (często Windows Update, SysMain, indeksowanie)','Sprawdź wolne miejsce na C: (mało miejsca = spowolnienia)','Sprawdź stan dysku (SMART / narzędzie producenta) — HDD blisko awarii bywa bardzo wolny','HDD: rozważ defragmentację; SSD: upewnij się, że TRIM działa'],next:'q_disk_ok'},
-   q_disk_ok:{type:'decision',title:'Po sprawdzeniu — lepiej?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie, a SMART pokazuje problem',to:'a_disk_esc'},{label:'Nie, SMART OK',to:'s_basic'}]},
-   a_disk_esc:{type:'end',kind:'escalate',title:'Dysk do wymiany',text:'Błędy SMART / stale 100% mimo braku obciążenia wskazują na umierający dysk. Zabezpiecz dane i zgłoś wymianę dysku do serwisu.'},
-   s_basic:{type:'step',title:'Podstawowe czyszczenie',text:'Gdy nic się nie wyróżnia, przejdź standardową listę.',list:['Restart komputera (jeśli długo nie był wyłączany)','Wyczyść pliki tymczasowe i Kosz; zwolnij miejsce na C:','Pełne skanowanie antywirusowe (Defender)','Zainstaluj zaległe aktualizacje Windows i sterowników','Sprawdź zaplanowane skanowania/zadania w tle'],next:'q_generic_ok'},
-   q_generic_ok:{type:'decision',title:'Komputer działa lepiej?',options:[{label:'Tak',to:'a_generic_res'},{label:'Nie',to:'a_generic_esc'}]},
-   a_generic_res:{type:'end',kind:'resolved',title:'Rozwiązane',text:'Wydajność wróciła do normy. Udokumentuj przyczynę i wykonane kroki w zgłoszeniu.'},
-   a_generic_esc:{type:'end',kind:'escalate',title:'Eskaluj',text:'Spowolnienie utrzymuje się mimo diagnozy zasobów i czyszczenia. Eskaluj wyżej z notatką o obciążeniu (CPU/RAM/dysk) i wykonanych krokach — możliwa głębsza przyczyna sprzętowa lub systemowa.'},
-   a_net:{type:'end',kind:'info',title:'Wolno tylko z zasobami sieciowymi',text:'Jeśli spowolnienie dotyczy tylko dysków sieciowych/aplikacji serwerowych, to nie problem wydajności stacji — przejdź do diagnozy sieci/serwera plików (patrz scenariusz „Brak dostępu do internetu" oraz sprawdź obciążenie serwera i łącza).'},
-  }},
-];
+/* SCENARIOS — dane wczytywane z zewnętrznego pliku scenarios.js (edytuj tam, aby dodawać scenariusze) */
 const scenList=document.getElementById('scenList'),scenWalk=document.getElementById('scenWalk');
 let curScen=null,curNode=null,scenHist=[];
 function renderScenList(){
